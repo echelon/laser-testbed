@@ -23,13 +23,13 @@ def line_generator(pt1, pt2, backward=False, steps = 100):
 			j = float(i)/steps
 			x = pt1.x + (xdiff * j)
 			y = pt1.y + (ydiff * j)
-			yield (x, y, 0, 0, CMAX) # XXX FIX COLORS
+			yield (x, y, CMAX, CMAX, CMAX) # XXX FIX COLORS
 	else:
 		for i in xrange(steps, 0, -1):
 			j = float(i)/steps
 			x = pt1.x + (xdiff * j)
 			y = pt1.y + (ydiff * j)
-			yield (x, y, 0, 0, CMAX) # XXX FIX COLORS
+			yield (x, y, CMAX, CMAX, CMAX) # XXX FIX COLORS
 
 class LinePointStream(object):
 
@@ -53,7 +53,7 @@ class LinePointStream(object):
 		self.lineOutGen = line_generator(self.pt1, self.pt2, backward=True)
 
 
-		size = 10000
+		size = 8000
 		self.linePts = [
 			(Point(0, 0), Point(0, size)),
 			(Point(0, -size), Point(-size, -size)),
@@ -97,59 +97,21 @@ class LinePointStream(object):
 
 class CirclePointStream(object):
 
-	"""
-	def produce(self):
-		if self.called:
-			return 
-		self.called = True
-
-		pmax = 32600
-		pmax = 4000 # XXX
-		pstep = 3
-		cmax = 65535 # MAX COLOR VALUE
-		cmin = cmax / 4
-		do = True
-		while do:
-			# XXX TUPLE: (x, y, r, g, b)
-			for x in xrange(-pmax, pmax, pstep): # top
-				yield (x, pmax, 0, 0, 0) 
-			for y in xrange(pmax, -pmax, -pstep): # left
-				yield (pmax, y, 0, cmax, 0)
-			for x in xrange(pmax, -pmax, -pstep): # bottom
-				yield (x, -pmax, 0, 0, 0)
-			for y in xrange(-pmax, pmax, pstep): # right
-				yield (-pmax, y, 0, cmax, 0)
-
-			do = False
-	"""
-
 	def produce(self):
 
 		MAXRAD =  32600
 
-		USERAD = MAXRAD / 8
+		USERAD = MAXRAD / 5
 	
-		RESIZE_SPEED_INV  = 300
+		RESIZE_SPEED_INV  = 200
 
 		while True: 
-			"""
 			rad = USERAD
 			for i in xrange(0, 1000, 1):
 				i = float(i) / 1000 * 2 * math.pi
 				x = int(math.cos(i) * rad)
 				y = int(math.sin(i) * rad) 
-				yield (x, y, 0, 0, CMAX) 
-
-			for i in xrange(0, 1000, 1):
-				i = float(i) / 1000 * 2 * math.pi
-				x = int(math.cos(i) * rad) + 1000
-				y = int(math.sin(i) * rad) + 1000
-				yield (x, y, 0, 0, CMAX)
-
-			# Blank
-			yield (0, 0, 0, 0, 0)
-			"""
-			pass
+				yield (x, y, CMAX, CMAX, CMAX) 
 
 	def __init__(self):
 		self.called = False
@@ -167,6 +129,7 @@ d = dac.DAC("169.254.206.40")
 
 #ps = LinePointStream(-5000, -5000, 5000, 5000, b=CMAX)
 ps = LinePointStream(-5000, 0, 500, 500, b=CMAX)
+#ps = CirclePointStream()
 d.play_stream(ps)
 
 """
