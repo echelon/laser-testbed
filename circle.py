@@ -2,8 +2,34 @@
 
 import dac
 import math
+import itertools
+import sys
 
 CMAX = 65535 # MAX COLOR VALUE
+
+
+class Point(object):
+	def __init__(self, x, y):
+		self.x = x
+		self.y = y
+	def __repr__(self): 
+		return "<Point: %d, %d>" % (self.x, self.y)
+
+def line_generator(pt1, pt2, backward=False, steps = 100):
+	xdiff = pt1.x - pt2.x
+	ydiff = pt1.y - pt2.y
+	if not backward:
+		for i in xrange(0, steps, 1):
+			j = float(i)/steps
+			x = pt1.x + (xdiff * j)
+			y = pt1.y + (ydiff * j)
+			yield (x, y, 0, 0, CMAX) # XXX FIX COLORS
+	else:
+		for i in xrange(steps, 0, -1):
+			j = float(i)/steps
+			x = pt1.x + (xdiff * j)
+			y = pt1.y + (ydiff * j)
+			yield (x, y, 0, 0, CMAX) # XXX FIX COLORS
 
 class LinePointStream(object):
 
@@ -14,22 +40,34 @@ class LinePointStream(object):
 		self.y1 = y1
 		self.x2 = x2
 		self.y2 = y2
+		self.pt1 = Point(x1, y1)
+		self.pt2 = Point(x2, y2)
+
 		self.r = r
 		self.g = g
 		self.b = b
 
 		self.stream = self.produce()
 
+		self.lineInGen = line_generator(self.pt1, self.pt2)
+		self.lineOutGen = line_generator(self.pt1, self.pt2, backward=True)
+
+	def resetIterators(self):
+		self.lineInGen = line_generator(self.pt1, self.pt2)
+		self.lineOutGen = line_generator(self.pt1, self.pt2, backward=True)
+
 	def produce(self):
-		xdiff = self.x2 - self.x1
-		ydiff = self.y2 - self.y1
-
-		steps = 100
-
-		print self.x1
-		print self.x2
-
 		while True:
+			try: 
+				yield self.lineInGen.next()
+			except:
+				try:
+					yield self.lineOutGen.next()
+				except:
+					self.resetIterators()
+
+
+			"""
 			# Line out
 			for i in xrange(0, steps, 1):
 				j = float(i)/steps
@@ -43,11 +81,11 @@ class LinePointStream(object):
 				x = self.x2 - xdiff * j
 				y = self.y2 - ydiff * j
 				yield (x, y, self.r, self.g, self.b)
+			"""
 
 	def read(self, n):
 		d = [self.stream.next() for i in xrange(n)]
 		return d
-
 
 class CirclePointStream(object):
 
@@ -120,6 +158,15 @@ class NullPointStream(object):
 d = dac.DAC("169.254.206.40")
 
 #ps = LinePointStream(-5000, -5000, 5000, 5000, b=CMAX)
-ps = LinePointStream(5000, 5000, -10000, -10000, b=CMAX)
+ps = LinePointStream(0, 0, 8000, 8000, b=CMAX)
 d.play_stream(ps)
 
+"""
+TODO: Shape(
+		Point(),
+		Point(),
+		Point(),
+		Point()
+		BlankTo(0)
+	)
+"""
