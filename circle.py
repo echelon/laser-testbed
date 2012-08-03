@@ -52,20 +52,28 @@ class LinePointStream(object):
 		self.lineInGen = line_generator(self.pt1, self.pt2)
 		self.lineOutGen = line_generator(self.pt1, self.pt2, backward=True)
 
-	def resetIterators(self):
-		self.lineInGen = line_generator(self.pt1, self.pt2)
-		self.lineOutGen = line_generator(self.pt1, self.pt2, backward=True)
+
+		size = 10000
+		self.linePts = [
+			(Point(0, 0), Point(0, size)),
+			(Point(0, -size), Point(-size, -size)),
+			(Point(size, -size), Point(size, -2*size)),
+			(Point(size, 0), Point(2*size, 0))
+		]
+		self.curLineIdx = len(self.linePts)-1
+		self.advanceLine()
+
+	def advanceLine(self):
+		self.curLineIdx = (self.curLineIdx + 1) % len(self.linePts)
+		self.curLine = line_generator(self.linePts[self.curLineIdx][0], 
+									  self.linePts[self.curLineIdx][1])
 
 	def produce(self):
 		while True:
-			try: 
-				yield self.lineInGen.next()
+			try:
+				yield self.curLine.next()
 			except:
-				try:
-					yield self.lineOutGen.next()
-				except:
-					self.resetIterators()
-
+				self.advanceLine()
 
 			"""
 			# Line out
@@ -158,7 +166,7 @@ class NullPointStream(object):
 d = dac.DAC("169.254.206.40")
 
 #ps = LinePointStream(-5000, -5000, 5000, 5000, b=CMAX)
-ps = LinePointStream(0, 0, 8000, 8000, b=CMAX)
+ps = LinePointStream(-5000, 0, 500, 500, b=CMAX)
 d.play_stream(ps)
 
 """
