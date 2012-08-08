@@ -22,9 +22,10 @@ import sys
 import time
 
 MAXPT = 20000 # Canvas boundaries 
-POINT_DURATION  = 5 # How long to draw point
-BLANK_SAMPLE_PTS = 50 # How long to blank 
-LASER_POWER_DENOM = 3 # How much to divide power by
+POINT_DURATION  = 500 # How long to draw point
+BLANK_SAMPLE_PTS = 5000 # How long to blank 
+LASER_POWER_DENOM = 1 # How much to divide power by
+SHOW_BLANKING_PATH = True # Show blanking trace
 
 """
 Send the galvo to random points...
@@ -67,12 +68,19 @@ class BlinkPointStreamWithBlanking(BlinkPointStream):
 				xb = int(lastX - xDiff*percent)
 				yb = int(lastY - yDiff*percent)
 				#print "Blank at: %d, %d" % (xb, yb)
-				#yield (xb, yb, 0, 0, CMAX/LASER_POWER_DENOM) # XXX: "See" the blanking
-				yield (xb, yb, 0, 0, 0)
+				if SHOW_BLANKING_PATH:
+					# XXX: "See" the blanking
+					yield (xb, yb, CMAX/LASER_POWER_DENOM, 
+								   CMAX/LASER_POWER_DENOM, 
+								   CMAX/LASER_POWER_DENOM)
+				else:
+					yield (xb, yb, 0, 0, 0)
 
 			# Show the random point
 			for i in xrange(0, POINT_DURATION):
-				yield (x, y, 0, 0, CMAX/LASER_POWER_DENOM)
+				yield (x, y, 0, 0, CMAX/LASER_POWER_DENOM,
+								   CMAX/LASER_POWER_DENOM,
+								   CMAX/LASER_POWER_DENOM)
 
 			lastX = x
 			lastY = y
