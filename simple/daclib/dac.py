@@ -191,7 +191,7 @@ class DAC(object):
 				time.sleep(0.005)
 				cap += 150
 
-			print "Writing %d points" % (cap, )
+			#print "Writing %d points" % (cap, )
 			t0 = time.time()
 			self.write(points)
 			t1 = time.time()
