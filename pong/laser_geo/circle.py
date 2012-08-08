@@ -1,7 +1,8 @@
-
 from .Geo import *
 
-class CircleGeo(PointStream):
+import math
+
+class CircleGeo(Geometry):
 
 	def __init__(self, radius=32600):
 		"""
@@ -28,10 +29,14 @@ class CircleGeo(PointStream):
 		Keep the points in memory. 
 		"""
 		CMAX = 65535 # MAX COLOR VALUE (TODO: Duplicated)
+		POINTS = 80
 		rad = int(self.radius)
-		for i in xrange(0, 1000, 1):
-			i = float(i) / 1000 * 2 * math.pi
+		x = 0
+		y = 0
+		for i in xrange(0, POINTS, 1):
+			i = float(i) / POINTS * 2 * math.pi
 			x = int(math.cos(i) * rad)
 			y = int(math.sin(i) * rad) 
-			self.points.append((x, y, CMAX, CMAX, CMAX))
+			self.points.append((x, y, 0, 0, CMAX))
 
+		self.points.append((x, y, 0, 0, 0)) # TODO: Blank frame? 
