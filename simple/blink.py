@@ -1,6 +1,11 @@
 #!/usr/bin/env python
 
 """
+
+THIS IS AN EXCELLENT TOOL TO UNDERSTAND BLANKING!
+
+PLAY WITH THE VARIABLES BELOW
+
 I'm writing this to learn how to effectively do blanking.
 
 Generates a random point, blanks to the next random point. 
@@ -18,7 +23,8 @@ import time
 
 MAXPT = 20000 # Canvas boundaries 
 POINT_DURATION  = 5 # How long to draw point
-BLANK_SAMPLE_PTS = 5000 # How long to blank 
+BLANK_SAMPLE_PTS = 50 # How long to blank 
+LASER_POWER_DENOM = 3 # How much to divide power by
 
 """
 Send the galvo to random points...
@@ -34,7 +40,7 @@ class BlinkPointStream(object):
 			x = random.randint(-MAXPT, MAXPT)
 			y = random.randint(-MAXPT, MAXPT)
 			for i in xrange(0, POINT_DURATION):
-				yield (x, y, 0, 0, CMAX/2)
+				yield (x, y, 0, 0, CMAX/LASER_POWER_DENOM)
 
 	def read(self, n):
 		d = [self.stream.next() for i in xrange(n)]
@@ -61,11 +67,12 @@ class BlinkPointStreamWithBlanking(BlinkPointStream):
 				xb = int(lastX - xDiff*percent)
 				yb = int(lastY - yDiff*percent)
 				#print "Blank at: %d, %d" % (xb, yb)
-				yield (xb, yb, 0, 0, CMAX/5) # XXX: "See" the blanking
+				#yield (xb, yb, 0, 0, CMAX/LASER_POWER_DENOM) # XXX: "See" the blanking
+				yield (xb, yb, 0, 0, 0)
 
 			# Show the random point
 			for i in xrange(0, POINT_DURATION):
-				yield (x, y, 0, 0, CMAX/5)
+				yield (x, y, 0, 0, CMAX/LASER_POWER_DENOM)
 
 			lastX = x
 			lastY = y
