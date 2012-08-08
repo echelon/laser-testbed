@@ -1,19 +1,11 @@
-# XXX: THERE IS A BAD COLOR ERROR
+#!/usr/bin/env python
 
-import dac
+from daclib import dac
+from daclib.common import * 
+
 import math
 import itertools
 import sys
-
-CMAX = 65535 # MAX COLOR VALUE
-
-
-class Point(object):
-	def __init__(self, x, y):
-		self.x = x
-		self.y = y
-	def __repr__(self): 
-		return "<Point: %d, %d>" % (self.x, self.y)
 
 def line_generator(pt1, pt2, backward=False, steps = 100):
 	xdiff = pt1.x - pt2.x
@@ -95,82 +87,10 @@ class LinePointStream(object):
 		d = [self.stream.next() for i in xrange(n)]
 		return d
 
-class CirclePointStream(object):
-
-	def produce(self):
-
-		MAXRAD =  32600
-
-		USERAD = MAXRAD * 1.0
-	
-		RESIZE_SPEED_INV  = 200
-
-		while True: 
-			rad = int(USERAD)
-			for i in xrange(0, 1000, 1):
-				i = float(i) / 1000 * 2 * math.pi
-				x = int(math.cos(i) * rad)
-				y = int(math.sin(i) * rad) 
-				yield (x, y, CMAX, CMAX, CMAX) 
-
-	def __init__(self):
-		self.called = False
-		self.stream = self.produce()
-
-	def read(self, n):
-		d = [self.stream.next() for i in xrange(n)]
-		return d
-
-class SpiralPointStream(object):
-
-	def produce(self):
-
-		MAXRAD =  32600
-
-		USERAD = MAXRAD * 1.0
-	
-		RESIZE_SPEED_INV  = 200
-
-		SPIRAL_DECAY = 10
-
-		while True: 
-			rad = int(USERAD)
-			j = 0
-			for i in xrange(0, 1000, 1):
-				j += SPIRAL_DECAY
-				i = float(i) / 100 * 2 * math.pi
-				x = int(math.cos(i) * (rad - j))
-				y = int(math.sin(i) * (rad - j)) 
-				yield (x, y, CMAX, CMAX, CMAX) 
-
-	def __init__(self):
-		self.called = False
-		self.stream = self.produce()
-
-	def read(self, n):
-		d = [self.stream.next() for i in xrange(n)]
-		return d
-
-
-
-class NullPointStream(object):
-	def read(self, n):
-		return [(0, 0, 0, 0, 0)] * n
-
 d = dac.DAC("169.254.206.40")
 
 #ps = LinePointStream(-5000, -5000, 5000, 5000, b=CMAX)
-#ps = LinePointStream(-5000, 0, 500, 500, b=CMAX)
-#ps = CirclePointStream()
-ps = SpiralPointStream()
+ps = LinePointStream(-5000, 0, 500, 500, b=CMAX)
 d.play_stream(ps)
 
-"""
-TODO: Shape(
-		Point(),
-		Point(),
-		Point(),
-		Point()
-		BlankTo(0)
-	)
-"""
+
