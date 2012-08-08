@@ -29,7 +29,7 @@ def main():
 	c4 = CircleGeo(8000)
 
 	cs.geometries.append(c1)
-	cs.geometries.append(c2)
+	#cs.geometries.append(c2)
 	cs.geometries.append(c3)
 	#cs.geometries.append(c4)
 

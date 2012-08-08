@@ -15,12 +15,7 @@ class CircleGeo(Geometry):
 			radius = 32600
 
 		self.radius = radius
-
-		"""
-		A list of the point/colors to draw. 
-		Includes internal blanking, etc.
-		"""
-		self.points = []
+		self.points = [] # list of tuples of the form (x, y, r, g, b)
 		self.create_points()
 
 	def create_points(self):
@@ -30,8 +25,13 @@ class CircleGeo(Geometry):
 		"""
 		CMAX = 65535 # MAX COLOR VALUE (TODO: Duplicated)
 		POINTS = 80
-		rad = int(self.radius)
-		for i in xrange(0, POINTS, 1):
+		points_ea = POINTS / 4
+
+		x1 = 0
+		y1 = 0
+		x2 = 0
+		y2 = 0
+		for i in xrange(0, ea):
 			i = float(i) / POINTS * 2 * math.pi
 			x = int(math.cos(i) * rad)
 			y = int(math.sin(i) * rad) 
