@@ -101,12 +101,12 @@ class CirclePointStream(object):
 
 		MAXRAD =  32600
 
-		USERAD = MAXRAD / 5
+		USERAD = MAXRAD * 1.0
 	
 		RESIZE_SPEED_INV  = 200
 
 		while True: 
-			rad = USERAD
+			rad = int(USERAD)
 			for i in xrange(0, 1000, 1):
 				i = float(i) / 1000 * 2 * math.pi
 				x = int(math.cos(i) * rad)
@@ -121,6 +121,38 @@ class CirclePointStream(object):
 		d = [self.stream.next() for i in xrange(n)]
 		return d
 
+class SpiralPointStream(object):
+
+	def produce(self):
+
+		MAXRAD =  32600
+
+		USERAD = MAXRAD * 1.0
+	
+		RESIZE_SPEED_INV  = 200
+
+		SPIRAL_DECAY = 10
+
+		while True: 
+			rad = int(USERAD)
+			j = 0
+			for i in xrange(0, 1000, 1):
+				j += SPIRAL_DECAY
+				i = float(i) / 100 * 2 * math.pi
+				x = int(math.cos(i) * (rad - j))
+				y = int(math.sin(i) * (rad - j)) 
+				yield (x, y, CMAX, CMAX, CMAX) 
+
+	def __init__(self):
+		self.called = False
+		self.stream = self.produce()
+
+	def read(self, n):
+		d = [self.stream.next() for i in xrange(n)]
+		return d
+
+
+
 class NullPointStream(object):
 	def read(self, n):
 		return [(0, 0, 0, 0, 0)] * n
@@ -128,8 +160,9 @@ class NullPointStream(object):
 d = dac.DAC("169.254.206.40")
 
 #ps = LinePointStream(-5000, -5000, 5000, 5000, b=CMAX)
-ps = LinePointStream(-5000, 0, 500, 500, b=CMAX)
+#ps = LinePointStream(-5000, 0, 500, 500, b=CMAX)
 #ps = CirclePointStream()
+ps = SpiralPointStream()
 d.play_stream(ps)
 
 """
