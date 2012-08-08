@@ -31,12 +31,9 @@ class CircleGeo(Geometry):
 		CMAX = 65535 # MAX COLOR VALUE (TODO: Duplicated)
 		POINTS = 80
 		rad = int(self.radius)
-		x = 0
-		y = 0
 		for i in xrange(0, POINTS, 1):
 			i = float(i) / POINTS * 2 * math.pi
 			x = int(math.cos(i) * rad)
 			y = int(math.sin(i) * rad) 
 			self.points.append((x, y, 0, 0, CMAX))
 
-		self.points.append((x, y, 0, 0, 0)) # TODO: Blank frame? 
