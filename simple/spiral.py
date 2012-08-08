@@ -15,13 +15,17 @@ class SpiralPointStream(object):
 
 		USERAD = MAXRAD / 100
 
-		SPIRAL_DECAY = 10
+		SPIRAL_GROWTH = 14
+
+		BLANK_SAMPLE_PTS = 50
 
 		while True: 
 			rad = int(USERAD)
 			j = 0
+
+			# Sample 1000 points along the spiral
 			for i in xrange(0, 1000, 1):
-				i = float(i) / 1000 * 2 * math.pi * 14
+				i = float(i) / 1000 * 2 * math.pi * SPIRAL_GROWTH
 				j = i
 
 				# Spirals are of the form:
@@ -30,13 +34,14 @@ class SpiralPointStream(object):
 				y = int(j * math.sin(i) * rad)
 				yield(x, y, CMAX / 2, CMAX / 2, 0) 
 
-			# Blanking
-			i = float(1000) / 1000 * 2 * math.pi * 14
+			# Blanking and return to 0,0 smoothly 
+			i = float(1000) / 1000 * 2 * math.pi * SPIRAL_GROWTH
 			j = i
 			x = int(j * math.cos(i) * rad)
 			y = int(j * math.sin(i) * rad)
-			for i in range(1, 20):
-				yield(x - x*i/20 , y - y*i/20, 0, 0, 0)
+			mv = BLANK_SAMPLE_PTS
+			for i in range(1, mv):
+				yield(x - x*i/mv, y - y*i/mv, 0, 0, 0) # Slowly move back.
 
 	def __init__(self):
 		self.called = False
