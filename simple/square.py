@@ -7,6 +7,8 @@ import math
 import itertools
 import sys
 
+CMAX = CMAX/4
+
 def line_generator(pt1, pt2, backward=False, steps = 100):
 	xdiff = pt1.x - pt2.x
 	ydiff = pt1.y - pt2.y
@@ -87,7 +89,7 @@ class LinePointStream(object):
 		d = [self.stream.next() for i in xrange(n)]
 		return d
 
-d = dac.DAC("169.254.206.40")
+d = dac.DAC(dac.find_first_dac())
 
 #ps = LinePointStream(-5000, -5000, 5000, 5000, b=CMAX)
 ps = LinePointStream(-5000, 0, 500, 500, b=CMAX)

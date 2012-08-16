@@ -21,10 +21,10 @@ import itertools
 import sys
 import time
 
-MAXPT = 20000 # Canvas boundaries 
-POINT_DURATION  = 500 # How long to draw point
+MAXPT = 32330 # Canvas boundaries 
+POINT_DURATION  = 5000 # How long to draw point
 BLANK_SAMPLE_PTS = 5000 # How long to blank 
-LASER_POWER_DENOM = 1 # How much to divide power by
+LASER_POWER_DENOM = 5 # How much to divide power by
 SHOW_BLANKING_PATH = True # Show blanking trace
 
 """
@@ -70,24 +70,25 @@ class BlinkPointStreamWithBlanking(BlinkPointStream):
 				#print "Blank at: %d, %d" % (xb, yb)
 				if SHOW_BLANKING_PATH:
 					# XXX: "See" the blanking
-					yield (xb, yb, CMAX/LASER_POWER_DENOM, 
-								   CMAX/LASER_POWER_DENOM, 
+					yield (xb, yb, CMAX/LASER_POWER_DENOM,
+								   CMAX/LASER_POWER_DENOM,
 								   CMAX/LASER_POWER_DENOM)
 				else:
 					yield (xb, yb, 0, 0, 0)
 
 			# Show the random point
 			for i in xrange(0, POINT_DURATION):
-				yield (x, y, 0, 0, CMAX/LASER_POWER_DENOM,
-								   CMAX/LASER_POWER_DENOM,
-								   CMAX/LASER_POWER_DENOM)
+				yield (x, y,  
+						 CMAX/LASER_POWER_DENOM,
+						 CMAX/LASER_POWER_DENOM,
+						 CMAX/LASER_POWER_DENOM)
 
 			lastX = x
 			lastY = y
 
 while True:
 	try:
-		d = dac.DAC("169.254.206.40")
+		d = dac.DAC(dac.find_first_dac())
 		#ps = BlinkPointStream()
 		ps = BlinkPointStreamWithBlanking()
 		d.play_stream(ps)

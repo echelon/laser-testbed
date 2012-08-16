@@ -29,7 +29,7 @@ def pack_point(x, y, r, g, b, i = -1, u1 = 0, u2 = 0, flags = 0):
 	if i < 0:
 		i = max(r, g, b)
 
-	return struct.pack("<HhhHHHHHH", flags, x, y, i, r, g, b, u1, u2)
+	return struct.pack("<HhhHHHHHH", flags, x, y, r, g, b, i, u1, u2)
 
 
 class ProtocolError(Exception):
@@ -191,11 +191,11 @@ class DAC(object):
 				time.sleep(0.005)
 				cap += 150
 
-			#print "Writing %d points" % (cap, )
+#			print "Writing %d points" % (cap, )
 			t0 = time.time()
 			self.write(points)
 			t1 = time.time()
-			#print "Took %f" % (t1 - t0, )
+#			print "Took %f" % (t1 - t0, )
 
 			if not started:
 				self.begin(0, 30000)
@@ -214,3 +214,11 @@ def find_dac():
 		
 		print "Packet from %s: " % (addr, )
 		bp.dump()
+
+def find_first_dac():
+	s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+	s.bind(("0.0.0.0", 7654))
+	data, addr = s.recvfrom(1024)
+	bp = BroadcastPacket(data)
+	print "Packet from %s: " % (addr, )
+	return addr[0]
