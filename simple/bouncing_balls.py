@@ -1,5 +1,13 @@
 #!/usr/bin/env python
 
+"""
+Two balls bouncing off walls. 
+
+The problems encountered here are "blanking" the laser as it moves from
+one ball to the next (so there is no line drawn between them), as well as
+turning on the laser in time to draw a complete circle for each ball. 
+"""
+
 from daclib import dac
 from daclib.common import * 
 
@@ -62,6 +70,15 @@ class PointStream(object):
 		self.stream = self.produce()
 
 	def produce(self):
+		"""
+		This infinite loop functions as an infinite point generator.
+		It generates points for both balls as well as the "blanking"
+		that must occur between them.
+
+		I am still not very comfortable with this 'inversion of 
+		control' that the DAC lib expects, but I am getting used to 
+		it. 
+		"""
 		while True: 
 
 			# Generate first points of the objects.
@@ -141,6 +158,7 @@ class PointStream(object):
 	def read(self, n):
 		d = [self.stream.next() for i in xrange(n)]
 		return d
+
 """
 Main Program
 """
@@ -159,6 +177,11 @@ def dac_thread():
 			pass
 
 def move_thread():
+	"""
+	This thread increments the ball positions and randomizes ball 
+	velocities when they "bounce" off the walls. 
+	This is just so sloppy of me... don't judge.
+	"""
 	MAX_X = 20000
 	MIN_X = -20000
 	MAX_Y = 20000
