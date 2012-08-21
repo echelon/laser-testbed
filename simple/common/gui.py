@@ -92,7 +92,9 @@ class BallGui(object):
 		self.samplePts = ScaleWithLabel(
 						"Total Sample Points Per Circle", 30, 3000, 
 						step=1, page=10, val=200)
-		self.rotations = ScaleWithLabel("Rotations")
+		self.rotations = ScaleWithLabel("Rotations around each circle",
+						1, 6, step=1, val=1)
+
 		self.pausePtsStart = ScaleWithLabel("Pause Points @ Start")
 		self.pausePtsEnd = ScaleWithLabel("Pause Points @ End")
 		self.blankPts = ScaleWithLabel("Blanking Points", 0, 100, step=1, 
@@ -113,7 +115,7 @@ class BallGui(object):
 
 		vbox.pack_start(self.laserPowDenom, False, False, 0)
 		vbox.pack_start(self.samplePts, False, False, 0)
-		#vbox.pack_start(self.rotations, False, False, 0)
+		vbox.pack_start(self.rotations, False, False, 0)
 		#vbox.pack_start(self.pausePtsStart, False, False, 0)
 		#vbox.pack_start(self.pausePtsEnd, False, False, 0)
 		#vbox.pack_start(self.blankPts, False, False, 0)

@@ -25,9 +25,10 @@ GLOBALS
 The gui will alter these.
 """
 LASER_POWER_DENOM = 3
-SHOW_BLANKING_PATH = False
+SHOW_BLANKING_PATH = True 
 BLANK_SAMPLE_PTS = 30
 BALL_SAMPLE_PTS = 200 
+CIRCLE_ROTATIONS = 1
 BOUNCE_VEL_MIN = 100
 BOUNCE_VEL_MAX = 1000
 RADIUS_A = 4000
@@ -65,7 +66,7 @@ class Ball(Entity):
 	def produce(self):
 		# REMOVED LOOP
 		for i in xrange(BALL_SAMPLE_PTS):
-			i = float(i) / BALL_SAMPLE_PTS * 2 * math.pi
+			i = 2 * math.pi * float(i) / BALL_SAMPLE_PTS * CIRCLE_ROTATIONS 
 			x = int(math.cos(i) * self.radius) + self.x
 			y = int(math.sin(i) * self.radius) + self.y
 
@@ -125,9 +126,7 @@ class PointStream(object):
 				#print "Blank at: %d, %d" % (xb, yb)
 				if SHOW_BLANKING_PATH:
 					# XXX: "See" the blanking
-					yield (xb, yb, CMAX/LASER_POWER_DENOM,
-								   CMAX/LASER_POWER_DENOM,
-								   CMAX/LASER_POWER_DENOM)
+					yield (xb, yb, 0, CMAX, 0)
 				else:
 					yield (xb, yb, 0, 0, 0)
 
@@ -160,9 +159,7 @@ class PointStream(object):
 				#print "Blank at: %d, %d" % (xb, yb)
 				if SHOW_BLANKING_PATH:
 					# XXX: "See" the blanking
-					yield (xb, yb, CMAX/LASER_POWER_DENOM,
-								   CMAX/LASER_POWER_DENOM,
-								   CMAX/LASER_POWER_DENOM)
+					yield (xb, yb, 0, CMAX, 0)
 				else:
 					yield (xb, yb, 0, 0, 0)
 
@@ -265,12 +262,13 @@ def move_thread():
 			continue
 
 def change_params(adj, widget, window):
-	global LASER_POWER_DENOM, BALL_SAMPLE_PTS
+	global LASER_POWER_DENOM, BALL_SAMPLE_PTS, CIRCLE_ROTATIONS
 	global BOUNCE_VEL_MAX, BOUNCE_VEL_MIN
 	global RADIUS_A, RADIUS_B
 
 	LASER_POWER_DENOM = window.laserPowDenom.get_value()
 	BALL_SAMPLE_PTS = int(window.samplePts.get_value())
+	CIRCLE_ROTATIONS = int(window.rotations.get_value())
 	BOUNCE_VEL_MIN = int(window.bounceVelMin.get_value())
 	BOUNCE_VEL_MAX = int(window.bounceVelMax.get_value())
 
