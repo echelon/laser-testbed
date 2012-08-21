@@ -68,22 +68,22 @@ def move_thread():
 	xDirec = 0
 	yDirec = 0
 
-	xAdd = 500
-	yAdd = 500
+	xAdd = 5000
+	yAdd = 5000
 
 	while True:
 		if ps.x > MAX_X:
 			xDirec = 0
-			xAdd = random.randint(100, 1000)
+			xAdd = 10000 #random.randint(100, 1000)
 		elif ps.x < MIN_X:
 			xDirec = 1
-			xAdd = random.randint(100, 1000)
+			xAdd = 10000 #random.randint(100, 1000)
 		if ps.y > MAX_Y:
 			yDirec = 0
-			yAdd = random.randint(100, 1000)
+			yAdd = 10000 # random.randint(100, 1000)
 		elif ps.y < MIN_Y:
 			yDirec = 1
-			yAdd = random.randint(100, 1000)
+			yAdd = 10000 # random.randint(100, 1000)
 
 		if xDirec:
 			ps.x += xAdd
