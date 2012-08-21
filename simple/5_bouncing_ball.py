@@ -11,6 +11,9 @@ import sys
 import thread
 import time
 
+# Lower the laser power
+COLOR_DENOM = 3.0
+
 class PointStream(object):
 	def __init__(self):
 		self.called = False
@@ -38,7 +41,7 @@ class Ball(PointStream):
 				i = float(i) / 40 * 2 * math.pi
 				x = int(math.cos(i) * self.radius) + self.x
 				y = int(math.sin(i) * self.radius) + self.y
-				yield (x, y, 0, 0, int(CMAX/3.0))
+				yield (x, y, 0, 0, int(CMAX/COLOR_DENOM))
 
 			# This, by itself, works
 			#self.x = (self.x + 10) % 10000
@@ -68,22 +71,22 @@ def move_thread():
 	xDirec = 0
 	yDirec = 0
 
-	xAdd = 5000
-	yAdd = 5000
+	xAdd = 500
+	yAdd = 500
 
 	while True:
 		if ps.x > MAX_X:
 			xDirec = 0
-			xAdd = 10000 #random.randint(100, 1000)
+			xAdd = random.randint(100, 1000)
 		elif ps.x < MIN_X:
 			xDirec = 1
-			xAdd = 10000 #random.randint(100, 1000)
+			xAdd = random.randint(100, 1000)
 		if ps.y > MAX_Y:
 			yDirec = 0
-			yAdd = 10000 # random.randint(100, 1000)
+			yAdd = random.randint(100, 1000)
 		elif ps.y < MIN_Y:
 			yDirec = 1
-			yAdd = 10000 # random.randint(100, 1000)
+			yAdd = random.randint(100, 1000)
 
 		if xDirec:
 			ps.x += xAdd
