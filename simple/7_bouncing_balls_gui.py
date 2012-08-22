@@ -21,20 +21,26 @@ import thread
 import time
 
 """
-GLOBALS
+NASTY GLOBALS
 The gui will alter these.
 """
 LASER_POWER_DENOM = 3
-SHOW_BLANKING_PATH = True 
+SHOW_BLANKING_PATH = False 
 BLANK_SAMPLE_PTS = 30
 BALL_SAMPLE_PTS = 200 
+PAUSE_START_PTS = 5
+PAUSE_END_PTS = 5
 CIRCLE_ROTATIONS = 1
-BOUNCE_VEL_MIN = 100
-BOUNCE_VEL_MAX = 1000
+BOUNCE_VEL_MIN = 10
+BOUNCE_VEL_MAX = 100
 RADIUS_A = 4000
 RADIUS_B = 8000
 
 class Entity(object):
+	"""
+	Just an attempt at an OO interface.
+	Nothing really fancy yet. 
+	"""
 	def __init__(self, x = 0, y = 0, r = 0, g = 0, b = 0):
 		self.x = x
 		self.y = y
@@ -51,6 +57,11 @@ class Entity(object):
 		return self.lastPt
 
 	def cacheFirstPt(self):
+		"""
+		I need to cache the first point generated so that I can 
+		slowly advance the galvos to the next object without starting 
+		drawing. 
+		"""
 		# XXX/FIXME: This is a hack (should I be using generators?)
 		for x in self.produce():
 			self.firstPt = x
@@ -63,8 +74,30 @@ class Ball(Entity):
 		self.radius = radius
 		self.drawn = False
 
+		self.pauseFirst = True 
+		self.pauseLast = True 
+
 	def produce(self):
-		# REMOVED LOOP
+		"""
+		Generate the points of the circle.
+		"""
+
+		"""
+		Figured it out! This is where the "tails" were coming from!
+		We have to blank first with NO color. The lasers turn on before
+		the galvos reach their destination. Duh. I had it figured in 
+		reverse. 
+		"""
+		if self.pauseFirst:
+			x = int(math.cos(0) * self.radius) + self.x
+			y = int(math.sin(0) * self.radius) + self.y
+			r = 0 if not self.r else int(CMAX / LASER_POWER_DENOM)
+			g = 0 if not self.g or LASER_POWER_DENOM > 4 else CMAX
+			b = 0 if not self.b else int(CMAX / LASER_POWER_DENOM)
+			self.lastPt = (x, y, 0, 0, 0)
+			for i in xrange(PAUSE_START_PTS):
+				yield self.lastPt
+
 		for i in xrange(BALL_SAMPLE_PTS):
 			i = 2 * math.pi * float(i) / BALL_SAMPLE_PTS * CIRCLE_ROTATIONS 
 			x = int(math.cos(i) * self.radius) + self.x
@@ -76,6 +109,10 @@ class Ball(Entity):
 
 			self.lastPt = (x, y, r, g, b)
 			yield self.lastPt
+
+		if self.pauseLast:
+			for i in xrange(PAUSE_END_PTS):
+				yield self.lastPt
 
 		self.drawn = True
 
@@ -263,11 +300,14 @@ def move_thread():
 
 def change_params(adj, widget, window):
 	global LASER_POWER_DENOM, BALL_SAMPLE_PTS, CIRCLE_ROTATIONS
+	global PAUSE_START_PTS, PAUSE_END_PTS
 	global BOUNCE_VEL_MAX, BOUNCE_VEL_MIN
 	global RADIUS_A, RADIUS_B
 
 	LASER_POWER_DENOM = window.laserPowDenom.get_value()
 	BALL_SAMPLE_PTS = int(window.samplePts.get_value())
+	PAUSE_START_PTS = int(window.pauseStartPts.get_value())
+	PAUSE_END_PTS = int(window.pauseEndPts.get_value())
 	CIRCLE_ROTATIONS = int(window.rotations.get_value())
 	BOUNCE_VEL_MIN = int(window.bounceVelMin.get_value())
 	BOUNCE_VEL_MAX = int(window.bounceVelMax.get_value())
