@@ -30,10 +30,10 @@ PAUSE_END_PTS = 8 # 8 seems optimum
 CIRCLE_ROTATIONS = 1
 BOUNCE_VEL_MIN = 75 
 BOUNCE_VEL_MAX = 500 
-RADIUS_MIN = 2000
+RADIUS_MIN = 500
 RADIUS_MAX = 7000
 
-NUM_BALLS = 7  # XXX: STARUP ADJUSTABLE ONLY
+NUM_BALLS = 8  # XXX: STARUP ADJUSTABLE ONLY
 
 class Entity(object):
 	"""
@@ -67,6 +67,7 @@ class Entity(object):
 			break
 
 
+# TODO: Rename circle
 class Ball(Entity):
 	def __init__(self, x = 0, y = 0, r = 0, g = 0, b = 0, radius = 1200):
 		super(Ball, self).__init__(x, y, r, g, b)
@@ -118,6 +119,106 @@ class Ball(Entity):
 			for i in xrange(PAUSE_END_PTS):
 				yield self.firstPt
 
+		self.drawn = True
+
+class Triangle(Entity):
+	def __init__(self, x = 0, y = 0, r = 0, g = 0, b = 0, radius = 1200):
+		super(Triangle, self).__init__(x, y, r, g, b)
+		self.radius = radius 
+		self.drawn = False
+
+		self.pauseFirst = True 
+		self.pauseLast = True 
+
+	def produce(self):
+		"""
+		Generate the points of the circle.
+		"""
+		r, g, b = (0, 0, 0)
+
+		"""
+		Figured it out! This is where the "tails" were coming from!
+		We have to blank first with NO color. The lasers turn on before
+		the galvos reach their destination. Duh. I had it figured in 
+		reverse. 
+		"""
+		"""
+		if self.pauseFirst:
+			x = int(math.cos(0) * self.radius) + self.x
+			y = int(math.sin(0) * self.radius) + self.y
+			r = 0 if not self.r else int(CMAX / LASER_POWER_DENOM)
+			g = 0 if not self.g or LASER_POWER_DENOM > 4 else CMAX
+			b = 0 if not self.b else int(CMAX / LASER_POWER_DENOM)
+			self.lastPt = (x, y, 0, 0, 0)
+			for i in xrange(PAUSE_START_PTS):
+				yield self.lastPt
+		"""
+
+		# Generate points
+		pt1 = math.pi/2.0
+		pt2 = math.pi*5.0/4.0
+		pt3 = math.pi*7.0/4.0
+
+		x1 = int(math.cos(pt1)* self.radius) + self.x
+		y1 = int(math.sin(pt1)* self.radius) + self.y
+
+		x2 = int(math.cos(pt2)* self.radius) + self.x 
+		y2 = int(math.sin(pt2)* self.radius) + self.y
+
+		x3 = int(math.cos(pt3)* self.radius) + self.x 
+		y3 = int(math.sin(pt3)* self.radius) + self.y
+
+		pt1 = {'x': x1, 'y': y1}
+		pt2 = {'x': x2, 'y': y2}
+		pt3 = {'x': x3, 'y': y3}
+
+		def make_line(pt1, pt2, backward=False, steps = 25):
+			xdiff = pt1['x'] - pt2['x']
+			ydiff = pt1['y'] - pt2['y']
+			line = []
+			for i in xrange(0, steps, 1):
+				j = float(i)/steps
+				x = pt1['x'] - (xdiff * j)
+				y = pt1['y'] - (ydiff * j)
+				line.append((x, y, CMAX/2, CMAX/2, CMAX/2)) # XXX FIX COLORS
+			return line
+
+		for p in make_line(pt1, pt2):
+			yield p
+		
+		for p in make_line(pt2, pt3):
+			yield p
+
+		for p in make_line(pt3, pt1):
+			self.lastPt = p
+			yield p
+
+
+		"""
+		for i in xrange(BALL_SAMPLE_PTS):
+			i = 2 * math.pi * float(i) / BALL_SAMPLE_PTS * CIRCLE_ROTATIONS 
+			x = int(math.cos(i) * self.radius) + self.x
+			y = int(math.sin(i) * self.radius) + self.y
+
+			r = 0 if not self.r else int(CMAX / LASER_POWER_DENOM)
+			g = 0 if not self.g or LASER_POWER_DENOM > 4 else CMAX
+			b = 0 if not self.b else int(CMAX / LASER_POWER_DENOM)
+
+			self.lastPt = (x, y, r, g, b)
+			yield self.lastPt
+		"""
+
+
+		"""
+		if self.pauseLast:
+			# XXX: Crude hack for broken edge
+			for i in xrange(PAUSE_END_PTS): 
+				yield (self.firstPt[0], self.firstPt[1], r, g, b)
+
+			for i in xrange(PAUSE_END_PTS):
+				yield self.firstPt
+
+		"""
 		self.drawn = True
 
 class PointStream(object):
@@ -192,7 +293,11 @@ Main Program
 
 balls = []
 for i in range(NUM_BALLS):
-	b = Ball(0, 0, 0, 0, CMAX, random.randint(RADIUS_MIN, RADIUS_MAX))
+	b = None
+	if random.randint(0, 1):
+		b = Ball(0, 0, 0, 0, CMAX, random.randint(RADIUS_MIN, RADIUS_MAX))
+	else:
+		b = Triangle(0, 0, 0, 0, CMAX, random.randint(RADIUS_MIN, RADIUS_MAX))
 	balls.append(b)
 
 ps = PointStream()
@@ -203,7 +308,12 @@ def dac_thread():
 			d = dac.DAC(dac.find_first_dac())
 			d.play_stream(ps)
 		except Exception as e:
-			print e
+			import sys, traceback
+			print '\n---------------------'
+			print 'Exception: %s' % e
+			print '- - - - - - - - - - -'
+			traceback.print_tb(sys.exc_info()[2])
+			print "\n"
 			pass
 
 def move_thread():
