@@ -92,21 +92,21 @@ class BallGui(object):
 								val=3)
 		self.samplePts = ScaleWithLabel(
 						"Total Sample Points Per Circle", 40, 3000, 
-						step=1, page=10, val=200)
+						step=1, page=10, val=50)
 		self.rotations = ScaleWithLabel("Rotations around each circle",
 						1, 6, step=1, val=1)
 
 		self.pauseStartPts = ScaleWithLabel("Pause Points @ Start",
-						0, 200, val=10)
+						0, 200, val=8)
 		self.pauseEndPts = ScaleWithLabel("Pause Points @ End",
-						0, 200, val=10)
+						0, 200, val=8)
 		self.blankPts = ScaleWithLabel("Blanking Points", 0, 100, step=1, 
 							page=1, val=10)
 
 		self.bounceVelMin = ScaleWithLabel("Bounce Velocity Min", 0, 5000, 
-							step=1, page=10, val=10)
+							step=1, page=10, val=75)
 		self.bounceVelMax = ScaleWithLabel("Bounce Velocity Max", 0, 5000, 
-							step=1, page=10, val=100)
+							step=1, page=10, val=500)
 
 		self.radiusA = ScaleWithLabel("Radius A", 100, 12000, 
 							step=1, page=10, val=4000)

@@ -27,12 +27,12 @@ The gui will alter these.
 LASER_POWER_DENOM = 3
 SHOW_BLANKING_PATH = False 
 BLANK_SAMPLE_PTS = 30
-BALL_SAMPLE_PTS = 200 
-PAUSE_START_PTS = 5
-PAUSE_END_PTS = 5
+BALL_SAMPLE_PTS = 60
+PAUSE_START_PTS = 8 # Seems optimum
+PAUSE_END_PTS = 8 # Seems optimum
 CIRCLE_ROTATIONS = 1
-BOUNCE_VEL_MIN = 10
-BOUNCE_VEL_MAX = 100
+BOUNCE_VEL_MIN = 75 
+BOUNCE_VEL_MAX = 500 
 RADIUS_A = 4000
 RADIUS_B = 8000
 
@@ -81,6 +81,7 @@ class Ball(Entity):
 		"""
 		Generate the points of the circle.
 		"""
+		r, g, b = (0, 0, 0)
 
 		"""
 		Figured it out! This is where the "tails" were coming from!
@@ -111,8 +112,12 @@ class Ball(Entity):
 			yield self.lastPt
 
 		if self.pauseLast:
+			# XXX: Crude hack for broken edge
+			for i in xrange(PAUSE_END_PTS): 
+				yield (self.firstPt[0], self.firstPt[1], r, g, b)
+
 			for i in xrange(PAUSE_END_PTS):
-				yield self.lastPt
+				yield self.firstPt
 
 		self.drawn = True
 
