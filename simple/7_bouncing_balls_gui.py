@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+# XXX: Not going to keep this very up to date. Moving onto '8'. 
+
 """
 Two balls bouncing off walls. 
 

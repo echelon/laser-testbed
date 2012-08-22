@@ -13,17 +13,18 @@ class CirclePointStream(object):
 
 		MAXRAD =  32600
 
-		USERAD = MAXRAD * 1.0
+		USERAD = int( MAXRAD / 8)
 	
 		RESIZE_SPEED_INV  = 200
 
+		PTS = 100
 		while True: 
 			rad = int(USERAD)
-			for i in xrange(0, 1000, 1):
-				i = float(i) / 1000 * 2 * math.pi
+			for i in xrange(0, PTS, 1):
+				i = float(i) / PTS * 2 * math.pi
 				x = int(math.cos(i) * rad)
 				y = int(math.sin(i) * rad) 
-				yield (x, y, CMAX, CMAX, CMAX) 
+				yield (x, y, CMAX/4, CMAX/4, CMAX/4) 
 
 	def __init__(self):
 		self.called = False

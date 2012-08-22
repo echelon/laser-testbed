@@ -7,7 +7,7 @@ import math
 import itertools
 import sys
 
-CMAX = CMAX/4
+CMAX = CMAX
 
 def line_generator(pt1, pt2, backward=False, steps = 100):
 	xdiff = pt1.x - pt2.x
