@@ -42,6 +42,11 @@ CHANGE_MIN = 20 # For galvo safety
 CHANGE_WAIT_MAX = 100
 CHANGE_WAIT_MIN = 1
 
+DITHER_INC_MAX = 1000
+DITHER_INC_MIN = 10
+CMIN_DEMO = 10000
+R, G, B = (CMAX,)*3
+
 """
 Send the galvo to random points...
 """
@@ -83,19 +88,19 @@ class BlinkPointStreamWithBlanking(BlinkPointStream):
 				xb = int(lastX - xDiff*percent)
 				yb = int(lastY - yDiff*percent)
 				if SHOW_TRAVEL_PATH:
-					yield (xb, yb, CMAX/LASER_POWER_DENOM,
-								   CMAX/LASER_POWER_DENOM,
-								   CMAX/LASER_POWER_DENOM,
-								   CMAX/LASER_POWER_DENOM)
+					yield (xb, yb, R/LASER_POWER_DENOM,
+								   G/LASER_POWER_DENOM,
+								   B/LASER_POWER_DENOM)
+								   
 				else:
 					yield (xb, yb, 0, 0, 0)
 
 			# Show the random point
 			for i in xrange(0, PAUSE_SAMPLE_PTS):
 				yield (x, y,  
-						 CMAX/LASER_POWER_DENOM,
-						 CMAX/LASER_POWER_DENOM,
-						 CMAX/LASER_POWER_DENOM)
+						 R/LASER_POWER_DENOM,
+						 G/LASER_POWER_DENOM,
+						 B/LASER_POWER_DENOM)
 
 			lastX = x
 			lastY = y
@@ -117,7 +122,7 @@ def dac_thread():
 			time.sleep(2.0)
 			continue
 
-def change_thread():
+def speed_thread():
 	global CHANGE_SAMPLING, CHANGE_PAUSE_DENOM, CHANGE_TRAVEL_DENOM
 	global CHANGE_MAX, CHANGE_MIN, CHANGE_SAMPLING_SEC
 	global PAUSE_SAMPLE_PTS, TRAVEL_SAMPLE_PTS
@@ -153,8 +158,64 @@ def change_thread():
 			SHOW_TRAVEL_PATH = not SHOW_TRAVEL_PATH
 		"""
 
+class DitherColor(object):
+	def __init__(self, val=CMAX, inc=1):
+		self.val = val
+		self.direc = -1
+		self.inc = inc
+		self.incMin = DITHER_INC_MIN
+		self.incMax = DITHER_INC_MAX
+
+	def incr(self):
+		"""
+		Linearly increment and decrement the color intensity.
+		"""
+		val = self.val
+
+		if val < 0:
+			val = 0
+
+		if self.direc <= 0:
+			val -= self.inc
+			if val < CMIN_DEMO:
+				val = CMIN_DEMO
+				self.direc = 1
+				self.randomizeRate()
+		else:
+			val += self.inc
+			if val >= CMAX:
+				val = CMAX-1
+				self.direc = -1
+				self.randomizeRate()
+
+		self.val = val
+
+	def getVal(self):
+		return abs(int(self.val))
+
+	def randomizeRate(self):
+		self.inc = random.randint(self.incMin, self.incMax)
+
+def color_thread():
+	global R, G, B
+
+	rr = DitherColor(inc = random.randint(50, 500))
+	gg = DitherColor(inc = random.randint(50, 500))
+	bb = DitherColor(inc = random.randint(50, 500))
+
+	while True:
+		rr.incr()
+		gg.incr()
+		bb.incr()
+		R = int(rr.getVal())
+		G = int(gg.getVal())
+		B = int(bb.getVal())
+
+		time.sleep(0.001)
+		
 thread.start_new_thread(dac_thread, ())
-thread.start_new_thread(change_thread, ())
+thread.start_new_thread(speed_thread, ())
+thread.start_new_thread(color_thread, ())
 
 while True:
 	time.sleep(200)

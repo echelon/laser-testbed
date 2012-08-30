@@ -1,5 +1,6 @@
 
 CMAX = 65535 # MAX COLOR VALUE
+CMIN = 0
 
 class Point(object):
 	def __init__(self, x, y):
