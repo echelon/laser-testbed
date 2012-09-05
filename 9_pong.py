@@ -21,6 +21,9 @@ A simple game of Pong with PS3 controllers.
 	Button 15	- Square 
 
 	Button 16	- PS Button
+
+Use qtsixa to pair controllers, then sixad to start the bluetooth 
+daemon.
 """
 
 from daclib import dac
