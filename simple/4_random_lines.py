@@ -26,6 +26,11 @@ import time
 LASER_POWER_DENOM = 1.0 # How much to divide power by
 MAXPT = 32330 # Canvas boundaries 
 
+MAX_X = 32330 
+MIN_X = -32330
+MAX_Y = 32330
+MIN_Y = -32330 
+
 # Demo params
 PAUSE_SAMPLE_PTS = 7000 # How long to draw point
 TRAVEL_SAMPLE_PTS = 7000 # How long to blank 
@@ -38,7 +43,7 @@ CHANGE_TRAVEL_DENOM = 2
 CHANGE_PAUSE_DENOM = 1.5
 CHANGE_WAIT_DENOM = 2 # Alter the wait time
 CHANGE_MAX = 5000 # For eye safety
-CHANGE_MIN = 20 # For galvo safety
+CHANGE_MIN = 30 # For galvo safety
 CHANGE_WAIT_MAX = 100
 CHANGE_WAIT_MIN = 1
 
@@ -58,8 +63,8 @@ class BlinkPointStream(object):
 
 	def produce(self):
 		while True: 
-			x = random.randint(-MAXPT, MAXPT)
-			y = random.randint(-MAXPT, MAXPT)
+			x = random.randint(MIN_X, MAX_X)
+			y = random.randint(MIN_Y, MAX_Y)
 			for i in xrange(0, PAUSE_SAMPLE_PTS):
 				yield (x, y, 0, 0, CMAX/LASER_POWER_DENOM)
 
@@ -76,8 +81,10 @@ class BlinkPointStreamWithBlanking(BlinkPointStream):
 		lastX = 0
 		lastY = 0
 		while True: 
-			x = random.randint(-MAXPT, MAXPT)
-			y = random.randint(-MAXPT, MAXPT)
+			#x = random.randint(-MAXPT, MAXPT)
+			#y = random.randint(-MAXPT, MAXPT)
+			x = random.randint(MIN_X, MAX_X)
+			y = random.randint(MIN_Y, MAX_Y)
 			
 			# Do blanking first.
 			xDiff = lastX - x
@@ -119,7 +126,7 @@ def dac_thread():
 		except:
 			# Hopefully the galvos aren't melting... 
 			print "EXCEPTION"
-			time.sleep(2.0)
+			time.sleep(0.01)
 			continue
 
 def speed_thread():
@@ -137,7 +144,7 @@ def speed_thread():
 		time.sleep(CHANGE_SAMPLING_SEC) # WAIT
 
 		newPause = int(PAUSE_SAMPLE_PTS / CHANGE_PAUSE_DENOM)
-		if CHANGE_MIN <= newPause <= CHANGE_MAX:
+		if 5 <= newPause <= CHANGE_MAX:
 			PAUSE_SAMPLE_PTS = newPause
 		else:
 			turnOffA = True

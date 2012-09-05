@@ -30,16 +30,16 @@ BALL_SAMPLE_PTS = 20
 TRIANGLE_EDGE_SAMPLE_PTS = 20
 SQUARE_EDGE_SAMPLE_PTS = 20 
 
-PAUSE_START_PTS = 8 # 8 seems optimum
-PAUSE_END_PTS = 8 # 8 seems optimum
+PAUSE_START_PTS = 9 # 8 seems optimum
+PAUSE_END_PTS = 9 # 8 seems optimum
 CIRCLE_ROTATIONS = 1
 BOUNCE_VEL_MIN = 75 
 BOUNCE_VEL_MAX = 500 
 
-RADIUS_MIN = 3000
-RADIUS_MAX = 7000
+RADIUS_MIN = 600  * 3
+RADIUS_MAX = 1500 * 3
 
-NUM_BALLS = 8 # XXX: STARUP ADJUSTABLE ONLY
+NUM_BALLS = 6 # XXX: STARUP ADJUSTABLE ONLY 8 seems opt`
 
 class Entity(object):
 	"""
@@ -415,13 +415,19 @@ Main Program
 balls = []
 for i in range(NUM_BALLS):
 	b = None
-	r = random.randint(0, 2)
+	r = random.randint(0, 4)
 	if r == 0:
-		b = Ball(0, 0, 0, 0, CMAX, random.randint(RADIUS_MIN, RADIUS_MAX))
+		b = Ball(0, 0, 0, CMAX, CMAX, random.randint(RADIUS_MIN, RADIUS_MAX))
 	elif r == 1:
-		b = Triangle(0, 0, 0, CMAX, 0, random.randint(RADIUS_MIN, RADIUS_MAX))
+		b = Triangle(0, 0, CMAX, CMAX, 0, random.randint(RADIUS_MIN, RADIUS_MAX))
 	elif r == 2:
 		b = Square(0, 0, CMAX, 0, 0, random.randint(RADIUS_MIN, RADIUS_MAX))
+	elif r == 3:
+		b = Ball(0, 0, 0, CMAX, 0, random.randint(RADIUS_MIN, RADIUS_MAX))
+	elif r == 4:
+		b = Square(0, 0, CMAX, CMAX, CMAX, random.randint(RADIUS_MIN, RADIUS_MAX))
+	balls.append(b)
+	balls.append(b)
 	balls.append(b)
 
 ps = PointStream()
@@ -450,6 +456,13 @@ def move_thread():
 	MIN_X = -20000
 	MAX_Y = 20000
 	MIN_Y = -20000
+
+	#MAX_X = 32330 / 10
+	#MIN_X = -32330 / 10
+	#MAX_Y = 32330 / 3
+	#MIN_Y = -32330 / 5 
+
+
 
 	# TODO: Combine direction and velocity... 
 	# TODO: Store directly in ball object... 

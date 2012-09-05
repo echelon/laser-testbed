@@ -6,8 +6,10 @@ from daclib.common import *
 import math
 import itertools
 import sys
+import time
 
 CMAX = CMAX
+SIZE = 8000
 
 def line_generator(pt1, pt2, backward=False, steps = 100):
 	xdiff = pt1.x - pt2.x
@@ -27,40 +29,29 @@ def line_generator(pt1, pt2, backward=False, steps = 100):
 
 class LinePointStream(object):
 
-	PTMAX = 32600
-
-	def __init__(self, x1, y1, x2, y2, r=0, g=0, b=0):
-		self.x1 = x1
-		self.y1 = y1
-		self.x2 = x2
-		self.y2 = y2
-		self.pt1 = Point(x1, y1)
-		self.pt2 = Point(x2, y2)
-
+	def __init__(self, size=500, r=0, g=0, b=0):
+		self.size = size
 		self.r = r
 		self.g = g
 		self.b = b
 
 		self.stream = self.produce()
 
-		self.lineInGen = line_generator(self.pt1, self.pt2)
-		self.lineOutGen = line_generator(self.pt1, self.pt2, backward=True)
-
-
-		size = 8000
 		self.linePts = [
 			(Point(0, 0), Point(0, size)),
 			(Point(0, -size), Point(-size, -size)),
 			(Point(size, -size), Point(size, -2*size)),
 			(Point(size, 0), Point(2*size, 0))
 		]
+
 		self.curLineIdx = len(self.linePts)-1
 		self.advanceLine()
 
 	def advanceLine(self):
-		self.curLineIdx = (self.curLineIdx + 1) % len(self.linePts)
-		self.curLine = line_generator(self.linePts[self.curLineIdx][0], 
-									  self.linePts[self.curLineIdx][1])
+		self.curLineIdx = (self.curLineIdx+1) % len(self.linePts)
+		self.curLine = line_generator(
+							self.linePts[self.curLineIdx][0], 
+						    self.linePts[self.curLineIdx][1])
 
 	def produce(self):
 		while True:
@@ -89,10 +80,18 @@ class LinePointStream(object):
 		d = [self.stream.next() for i in xrange(n)]
 		return d
 
-d = dac.DAC(dac.find_first_dac())
+while True:
+	try:
+		d = dac.DAC(dac.find_first_dac())
+		ps = LinePointStream(SIZE)
+		d.play_stream(ps)
 
-#ps = LinePointStream(-5000, -5000, 5000, 5000, b=CMAX)
-ps = LinePointStream(-5000, 0, 500, 500, b=CMAX)
-d.play_stream(ps)
+	except KeyboardInterrupt:
+		sys.exit()
 
+	except:
+		# Hopefully the galvos aren't melting... 
+		print "EXCEPTION"
+		time.sleep(1.0)
+		continue
 
