@@ -21,7 +21,7 @@ import time
 NASTY GLOBALS
 The gui will alter these.
 """
-LASER_POWER_DENOM = 1
+LASER_POWER_DENOM = 4
 SHOW_BLANKING_PATH = False 
 BLANK_SAMPLE_PTS = 12 
 
@@ -39,7 +39,7 @@ BOUNCE_VEL_MAX = 500
 RADIUS_MIN = 600  * 3
 RADIUS_MAX = 1500 * 3
 
-NUM_BALLS = 6 # XXX: STARUP ADJUSTABLE ONLY 8 seems opt`
+NUM_BALLS = 5 # XXX: STARUP ADJUSTABLE ONLY 8 seems opt`
 
 class Entity(object):
 	"""
