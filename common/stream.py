@@ -8,8 +8,11 @@ PointStream -- The main galvo multiple object drawing algorithm.
 """
 
 SHOW_TRACKING_PATH = False
+SHOW_BLANKING_PATH = False
 TRACKING_SAMPLE_PTS = 10
-BLANK_SAMPLE_PTS = 10
+BLANKING_SAMPLE_PTS = 10
+
+_CMAX = 65535 # MAX COLOR VALUE
 
 import math
 import random
@@ -26,6 +29,12 @@ class PointStream(object):
 		# A list of all the objects to draw
 		# XXX: For now, add and remove manually. 
 		self.objects = []
+
+		# Tweakable parameters
+		self.showTracking = SHOW_TRACKING_PATH
+		self.showBlanking = SHOW_BLANKING_PATH
+		self.trackingSamplePts = TRACKING_SAMPLE_PTS
+		self.blankingSamplePts = BLANKING_SAMPLE_PTS
 
 	def produce(self):
 		"""
@@ -52,7 +61,7 @@ class PointStream(object):
 
 
 				"""
-				# TOPOLOGICAL SORT OF OBJECTS TO MAKE DRAWING W/ 
+				# TOPOLOGICAL SORT OF OBJECTS TO MAKE DRAWING W/
 				# GALVOS EFFICIENT!
 				sortedObjects = []
 				presort = self.objects[:]
@@ -73,7 +82,7 @@ class PointStream(object):
 					sortedObjects.append(presort.pop(li))
 
 				#sortedObjects = self.objects[:]
-				self.objects = sortedObjects # XXX XXX XXX XXX TURN OFF HERE
+				self.objects = sortedObjects # XXX TURN OFF HERE
 				"""
 
 				# Draw all the objects... 
@@ -93,13 +102,18 @@ class PointStream(object):
 					if curObj.doBlanking:
 						p = curObj.firstPt
 						p = (p[0], p[1], 0, 0, 0)
-						for x in range(BLANK_SAMPLE_PTS):
+						# If we want to debug the blanking 
+						if self.showBlanking:
+							p = (p[0], p[1], _CMAX, 0, _CMAX)
+						for x in range(self.blankingSamplePts):
 							yield p
 
 					# Draw the object
+					lastPt = (0, 0, 0, 0, 0)
 					if not curObj.drawn:
-						yield curObj.firstPt # This was cached upfront
+						yield curObj.firstPt # XXX: This was cached upfront!
 						for x in curObj.produce():
+							lastPt = x
 							yield x
 
 					"""
@@ -111,7 +125,7 @@ class PointStream(object):
 							yield curObj.firstPt
 
 						# Paint empty for smoothness
-						# XXX: Remove? 
+						# XXX: Remove?
 						for x in xrange(BLANK_SAMPLE_PTS):
 							yield (curObj.lastPt[0], curObj.lastPt[1],
 									0, 0, 0)
@@ -119,25 +133,28 @@ class PointStream(object):
 
 					# Blanking (on the way out), if set
 					if curObj.doBlanking:
-						p = curObj.lastPt
+						p = lastPt
 						p = (p[0], p[1], 0, 0, 0)
-						for x in range(BLANK_SAMPLE_PTS):
+						# If we want to debug the blanking 
+						if self.showBlanking:
+							p = (p[0], p[1], _CMAX, 0, _CMAX)
+						for x in range(self.blankingSamplePts):
 							yield p
 
 					# Now, track to the next object. 
-					lastX = curObj.lastPt[0]
-					lastY = curObj.lastPt[1]
-					xDiff = curObj.lastPt[0] - nextObj.firstPt[0]
-					yDiff = curObj.lastPt[1] - nextObj.firstPt[1]
+					lastX = lastPt[0]
+					lastY = lastPt[1]
+					xDiff = lastPt[0] - nextObj.firstPt[0]
+					yDiff = lastPt[1] - nextObj.firstPt[1]
 
-					mv = TRACKING_SAMPLE_PTS
+					mv = self.trackingSamplePts
 					for i in xrange(mv):
 						percent = i/float(mv)
 						xb = int(lastX - xDiff*percent)
 						yb = int(lastY - yDiff*percent)
-						# If we want to 'see' the tracking path (debug)
-						if SHOW_TRACKING_PATH:
-							yield (xb, yb, 0, CMAX, 0)
+						# If we want to debug the tracking path 
+						if self.showTracking:
+							yield (xb, yb, 0, _CMAX, 0)
 						else:
 							yield (xb, yb, 0, 0, 0)
 
@@ -163,4 +180,5 @@ class PointStream(object):
 	def read(self, n):
 		d = [self.stream.next() for i in xrange(n)]
 		return d
+
 
