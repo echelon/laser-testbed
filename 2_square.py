@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from daclib import dac
-from daclib.common import * 
+from daclib.common import *
 
 import math
 import itertools
@@ -9,7 +9,7 @@ import sys
 import time
 
 CMAX = CMAX
-SIZE = 12000
+SIZE = 6000
 XOFF = -8000
 YOFF = 10000
 

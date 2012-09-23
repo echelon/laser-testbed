@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 
-from daclib import dac
-from daclib.common import *
-
-from common.stream import PointStream
-from common.shape import Shape
+"""
+A rotating, translating, transforming (growing) square.
+Integrates some code from my GameJam project, Laser Asteroids.
+"""
 
 import math
 import itertools
@@ -12,11 +11,17 @@ import sys
 import time
 import thread
 
+from daclib import dac
+from daclib.common import *
+
+from common.stream import PointStream
+from common.shape import Shape
+
 """
 CONFIGURATION
 """
 
-LASER_POWER_DENOM = 4.0
+LASER_POWER_DENOM = 1.0
 
 SQUARE_X = 0
 SQUARE_Y = 5000
@@ -28,7 +33,7 @@ SQUARE_RADIUS_MIN = 800
 SQUARE_RADIUS_MAX = 3200
 SQUARE_RADIUS_INC = 0 # 50
 SQUARE_R = CMAX
-SQUARE_G = 0
+SQUARE_G = CMAX
 SQUARE_B = CMAX
 
 PAN_X_INC_MAG = 600
@@ -43,7 +48,9 @@ CODE BEGINS HERE
 
 class Square(Shape):
 
-	def __init__(self, x = 0, y = 0, r = 0, g = 0, b = 0, radius = 8200):
+	def __init__(self, x = 0, y = 0, r = 0, g = 0, b = 0,
+			radius = 8200):
+
 		super(Square, self).__init__(x, y, r, g, b)
 
 		self.drawn = False

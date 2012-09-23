@@ -26,10 +26,10 @@ import time
 LASER_POWER_DENOM = 1.0 # How much to divide power by
 MAXPT = 32330 # Canvas boundaries 
 
-MAX_X = 32330
-MIN_X = -32330
-MAX_Y = 32330
-MIN_Y = -32330
+MAX_X = 32330 / 10
+MIN_X = -32330 / 10
+MAX_Y = 32330 / 10
+MIN_Y = -32330 / 10
 
 # Demo params
 PAUSE_SAMPLE_PTS = 7000 # How long to draw point
