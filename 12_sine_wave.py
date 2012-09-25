@@ -21,20 +21,21 @@ from common.shape import Shape
 CONFIGURATION
 """
 
-LASER_POWER_DENOM = 1.5
+LASER_POWER_DENOM = 1.0
 
 ORIGIN_X = 0
 ORIGIN_Y = 6000
 
-COLOR_R = CMAX / 2
-COLOR_G = CMAX / 2
-COLOR_B = CMAX / 2
+COLOR_R = CMAX / 1
+COLOR_G = CMAX / 1
+COLOR_B = CMAX / 1
 
-WAVE_SAMPLE_PTS = 1000
+WAVE_SAMPLE_PTS = 500
 WAVE_PERIODS = 3
 WAVE_RATE = 1
 WAVE_WIDTH = 24000 # XXX Not wavelength!
-WAVE_AMPLITUDE = 4000
+WAVE_AMPLITUDE_MAGNITUDE = 6000 # dither between +/-
+WAVE_AMPLITUDE_RATE = 500
 
 """
 CODE BEGINS HERE
@@ -157,7 +158,6 @@ class SineWave(Shape):
 
 		self.drawn = True
 
-
 def dac_thread():
 	global SINEW
 	global WAVE_PERIODS
@@ -174,7 +174,7 @@ def dac_thread():
 
 	SINEW.numPeriods = WAVE_PERIODS
 	SINEW.width = WAVE_WIDTH
-	SINEW.sineAmp = WAVE_AMPLITUDE
+	SINEW.sineAmp = WAVE_AMPLITUDE_MAGNITUDE
 
 	SINEW.x = ORIGIN_X
 	SINEW.y = ORIGIN_Y
@@ -200,7 +200,7 @@ def dac_thread():
 			traceback.print_tb(sys.exc_info()[2])
 			print "\n"
 
-def spin_thread():
+def animate_thread():
 	global SINEW
 	"""
 	global SQUARE_X, SQUARE_Y
@@ -209,16 +209,27 @@ def spin_thread():
 	global SPIN_THETA_INC
 	global PAN_X_INC_MAG, PAN_X_MAX, PAN_X_MIN
 	"""
-
 	inc = True
 	panInc = True
 
 	xPan = 0
 	spin = 0
 
+	ampDirec = 1
+
 	while True:
 		SINEW.sinePos += WAVE_RATE
-		time.sleep(0.05)
+		time.sleep(0.015)
+
+		if SINEW.sineAmp > WAVE_AMPLITUDE_MAGNITUDE:
+			ampDirec = -1
+		elif SINEW.sineAmp < -WAVE_AMPLITUDE_MAGNITUDE:
+			ampDirec = 1
+
+		if ampDirec >= 0:
+			SINEW.sineAmp += WAVE_AMPLITUDE_RATE
+		else:
+			SINEW.sineAmp -= WAVE_AMPLITUDE_RATE
 
 #
 # Start Threads
@@ -228,7 +239,7 @@ SINEW = SineWave()
 
 thread.start_new_thread(dac_thread, ())
 time.sleep(1.0)
-thread.start_new_thread(spin_thread, ())
+thread.start_new_thread(animate_thread, ())
 
 while True:
 	time.sleep(100000)
