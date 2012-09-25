@@ -202,13 +202,7 @@ def dac_thread():
 
 def animate_thread():
 	global SINEW
-	"""
-	global SQUARE_X, SQUARE_Y
-	global SQUARE_RADIUS_MIN, SQUARE_RADIUS_MAX
-	global SQUARE_RADIUS_INC
-	global SPIN_THETA_INC
-	global PAN_X_INC_MAG, PAN_X_MAX, PAN_X_MIN
-	"""
+
 	inc = True
 	panInc = True
 
@@ -218,14 +212,17 @@ def animate_thread():
 	ampDirec = 1
 
 	while True:
+		# Translation rate animation
 		SINEW.sinePos += WAVE_RATE
 		time.sleep(0.015)
 
-		if SINEW.sineAmp > WAVE_AMPLITUDE_MAGNITUDE:
+		#  Amplitude shift animation
+		if SINEW.sineAmp > \
+				WAVE_AMPLITUDE_MAGNITUDE:
 			ampDirec = -1
-		elif SINEW.sineAmp < -WAVE_AMPLITUDE_MAGNITUDE:
+		elif SINEW.sineAmp < \
+				-WAVE_AMPLITUDE_MAGNITUDE:
 			ampDirec = 1
-
 		if ampDirec >= 0:
 			SINEW.sineAmp += WAVE_AMPLITUDE_RATE
 		else:
