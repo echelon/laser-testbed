@@ -26,23 +26,13 @@ LASER_POWER_DENOM = 1.0
 
 POINT_NUM_SAMPLE_PTS = 30
 
-SQUARE_X = 0
-SQUARE_Y = 9000
+X_MIN = -8000
+X_MAX = 8000
+Y_MIN = -8000
+Y_MAX = 8000
 
-SQUARE_EDGE_SAMPLE_PTS = 50
-SQUARE_VERTEX_SAMPLE_PTS = 10
-
-SQUARE_RADIUS_MIN = 3000
-SQUARE_RADIUS_MAX = 5200
-SQUARE_RADIUS_INC = 250 # 50
-SQUARE_R = CMAX
-SQUARE_G = CMAX
-SQUARE_B = CMAX
-
-PAN_X_INC_MAG = 1500
-PAN_X_MAX = 25000
-PAN_X_MIN = -25000
-
+TRACKING_SAMPLE_PTS = 7
+BLANKING_SAMPLE_PTS = 12
 
 """
 CODE BEGINS HERE
@@ -83,8 +73,8 @@ class Point(Shape):
 			self.destroy = True
 
 PS = PointStream()
-PS.trackingSamplePts = 7
-PS.blankingSamplePts = 12
+PS.trackingSamplePts = TRACKING_SAMPLE_PTS
+PS.blankingSamplePts = BLANKING_SAMPLE_PTS
 
 def dac_thread():
 	global PS
@@ -108,8 +98,8 @@ def anim_thread():
 	global PS
 	while True:
 		if len(PS.objects) < 7:
-			x = random.randint(-8000, 8000)
-			y = random.randint(1000, 9000)
+			x = random.randint(X_MIN, X_MAX)
+			y = random.randint(Y_MIN, Y_MAX)
 			life = random.randint(4, 7)
 
 			r = CMAX/3 if random.randint(0, 1) else CMAX
