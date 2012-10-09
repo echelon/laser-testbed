@@ -8,10 +8,13 @@ import itertools
 import sys
 import time
 
-CMAX = CMAX
-SIZE = 6000
-XOFF = -8000
-YOFF = 10000
+COLOR_R = CMAX
+COLOR_G = 0
+COLOR_B = CMAX
+
+SIZE = 10000
+XOFF = 0 
+YOFF = 15000
 
 def line_generator(pt1, pt2, backward=False, steps = 100):
 	xdiff = pt1.x - pt2.x
@@ -21,13 +24,14 @@ def line_generator(pt1, pt2, backward=False, steps = 100):
 			j = float(i)/steps
 			x = pt1.x + (xdiff * j)
 			y = pt1.y + (ydiff * j)
-			yield (x, y, CMAX, CMAX, CMAX) # XXX FIX COLORS
+			yield (x, y, COLOR_R, COLOR_G, COLOR_B)
+
 	else:
 		for i in xrange(steps, 0, -1):
 			j = float(i)/steps
 			x = pt1.x + (xdiff * j)
 			y = pt1.y + (ydiff * j)
-			yield (x, y, CMAX, CMAX, CMAX) # XXX FIX COLORS
+			yield (x, y, COLOR_R, COLOR_G, COLOR_B)
 
 class LinePointStream(object):
 

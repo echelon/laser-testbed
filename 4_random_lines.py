@@ -26,9 +26,9 @@ import time
 LASER_POWER_DENOM = 1.0 # How much to divide power by
 MAXPT = 32330 # Canvas boundaries 
 
-MAX_X = 32330 / 10
-MIN_X = -32330 / 10
-MAX_Y = 32330 / 10
+MAX_X = 32330 / 2
+MIN_X = -32330 / 2
+MAX_Y = 32330 / 2
 MIN_Y = -32330 / 10
 
 # Demo params
@@ -219,7 +219,7 @@ def color_thread():
 		B = int(bb.getVal())
 
 		time.sleep(0.001)
-		
+
 thread.start_new_thread(dac_thread, ())
 thread.start_new_thread(speed_thread, ())
 thread.start_new_thread(color_thread, ())

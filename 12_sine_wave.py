@@ -6,6 +6,7 @@ Integrates some code from my GameJam project, Laser Asteroids.
 """
 
 import math
+import random
 import itertools
 import sys
 import time
@@ -16,6 +17,7 @@ from daclib.common import *
 
 from common.stream import PointStream
 from common.shape import Shape
+from common.color import *
 
 """
 CONFIGURATION
@@ -33,9 +35,9 @@ COLOR_B = CMAX / 1
 WAVE_SAMPLE_PTS = 500
 WAVE_PERIODS = 3
 WAVE_RATE = 1
-WAVE_WIDTH = 24000 # XXX Not wavelength!
-WAVE_AMPLITUDE_MAGNITUDE = 6000 # dither between +/-
-WAVE_AMPLITUDE_RATE = 500
+WAVE_WIDTH = 22000 # XXX Not wavelength!
+WAVE_AMPLITUDE_MAGNITUDE = 3000 # dither between +/-
+WAVE_AMPLITUDE_RATE = 800
 
 """
 CODE BEGINS HERE
@@ -82,9 +84,10 @@ class SineWave(Shape):
 			i = (percent * periods) + self.sinePos
 			y = int(math.sin(i) * self.sineAmp) + self.y
 
-			r = int(self.g - rh*percent)
+			# XXX FIX MATHS: Something wrong, but does it matter?
+			r = int(math.floor(self.g - rh*percent))
 			g = self.g
-			b = int(self.b - bh + bh*percent)
+			b = int(math.floor(self.b - bh + bh*percent))
 
 			s = (x, y, r, g, b)
 			if s[0] == 0 or s[1] == 0:
@@ -228,6 +231,33 @@ def animate_thread():
 		else:
 			SINEW.sineAmp -= WAVE_AMPLITUDE_RATE
 
+def color_thread():
+	global SINEW
+
+	rr = DitherColor(inc = random.randint(50, 500))
+	gg = DitherColor(inc = random.randint(50, 500))
+	bb = DitherColor(inc = random.randint(50, 500))
+
+	color = RandomColorAnimation()
+
+	while True:
+		rr.incr()
+		gg.incr()
+		bb.incr()
+		color.frame()
+
+		SINEW.r = color.curColor.r
+		SINEW.g = color.curColor.g
+		SINEW.b = color.curColor.b
+
+		#SINEW.r = int(rr.getVal())
+		#SINEW.g = int(gg.getVal())
+		#SINEW.b = int(bb.getVal())
+
+		time.sleep(0.1)
+
+
+
 #
 # Start Threads
 #
@@ -237,6 +267,7 @@ SINEW = SineWave()
 thread.start_new_thread(dac_thread, ())
 time.sleep(1.0)
 thread.start_new_thread(animate_thread, ())
+thread.start_new_thread(color_thread, ())
 
 while True:
 	time.sleep(100000)

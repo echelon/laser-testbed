@@ -1,0 +1,135 @@
+#!/usr/bin/env python
+
+"""
+A rotating, translating, transforming (growing) square.
+Integrates some code from my GameJam project, Laser Asteroids.
+"""
+
+import math
+import random
+import itertools
+import sys
+import time
+import thread
+
+from daclib import dac
+from daclib.common import *
+
+from common.stream import PointStream
+from common.shape import Shape
+
+"""
+CONFIGURATION
+"""
+
+LASER_POWER_DENOM = 1.0
+
+POINT_NUM_SAMPLE_PTS = 30
+
+SQUARE_X = 0
+SQUARE_Y = 9000
+
+SQUARE_EDGE_SAMPLE_PTS = 50
+SQUARE_VERTEX_SAMPLE_PTS = 10
+
+SQUARE_RADIUS_MIN = 3000
+SQUARE_RADIUS_MAX = 5200
+SQUARE_RADIUS_INC = 250 # 50
+SQUARE_R = CMAX
+SQUARE_G = CMAX
+SQUARE_B = CMAX
+
+PAN_X_INC_MAG = 1500
+PAN_X_MAX = 25000
+PAN_X_MIN = -25000
+
+
+"""
+CODE BEGINS HERE
+"""
+
+class Point(Shape):
+
+	def __init__(self, x = 0, y = 0, r = 0, g = 0, b = 0):
+		super(Point, self).__init__(x, y, r, g, b)
+
+		self.drawn = False
+		self.pauseFirst = True
+		self.pauseLast = True
+
+		self.theta = 0
+		self.thetaRate = 0
+
+		self.life = 10
+
+	def produce(self):
+		"""
+		Generate the points of the circle.
+		"""
+		r, g, b = (0, 0, 0)
+
+		r = 0 if not self.r else int(self.r / LASER_POWER_DENOM)
+		g = 0 if not self.g or LASER_POWER_DENOM > 4 else self.g
+		b = 0 if not self.b else int(self.b / LASER_POWER_DENOM)
+
+		p = (self.x, self.y, r, g, b)
+		for i in range(POINT_NUM_SAMPLE_PTS):
+			yield p
+
+		self.drawn = True
+
+		self.life -= 1
+		if self.life <= 0:
+			self.destroy = True
+
+PS = PointStream()
+PS.trackingSamplePts = 7
+PS.blankingSamplePts = 12
+
+def dac_thread():
+	global PS
+	while True:
+		try:
+			d = dac.DAC(dac.find_first_dac())
+			d.play_stream(PS)
+
+		except KeyboardInterrupt:
+			sys.exit()
+
+		except Exception as e:
+			import sys, traceback
+			print '\n---------------------'
+			print 'Exception: %s' % e
+			print '- - - - - - - - - - -'
+			traceback.print_tb(sys.exc_info()[2])
+			print "\n"
+
+def anim_thread():
+	global PS
+	while True:
+		if len(PS.objects) < 7:
+			x = random.randint(-8000, 8000)
+			y = random.randint(1000, 9000)
+			life = random.randint(4, 7)
+
+			r = CMAX/3 if random.randint(0, 1) else CMAX
+			g = 0 if random.randint(0, 1) else CMAX
+			b = CMAX/3 if random.randint(0, 1) else CMAX
+
+			pt = Point(x, y, r, g, b)
+			pt.life = life
+			PS.objects.append(pt)
+
+		time.sleep(0.01)
+
+#
+# Start Threads
+#
+
+thread.start_new_thread(dac_thread, ())
+time.sleep(1.0)
+thread.start_new_thread(anim_thread, ())
+
+while True:
+	time.sleep(100000)
+

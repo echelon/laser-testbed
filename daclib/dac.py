@@ -145,7 +145,12 @@ class DAC(object):
 		return self.readresp("u")
 
 	def encode_point(self, point):
-		return pack_point(*point)
+		try:
+			return pack_point(*point)
+		except Exception as e:
+			print "Exception"
+			print point
+			raise e
 
 	def write(self, points):
 		epoints = map(self.encode_point, points)
