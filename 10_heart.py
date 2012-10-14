@@ -1,30 +1,28 @@
 #!/usr/bin/env python
 
 from daclib import dac
-from daclib.common import * 
+from daclib.common import *
 
 import math
 import itertools
 import sys
 
 LASER_POWER_DENOM = 1.0
-MAXRAD = 32600
-USERAD = int(MAXRAD/10)
 SAMPLE_PTS = 100 # 30 and below very damaging to galvos
-
+SIZE = 500
 
 class HeartPointStream(object):
 
 	def produce(self):
-
 		RESIZE_SPEED_INV = 200
 		while True:
-			rad = int(USERAD)
 			for i in xrange(0, SAMPLE_PTS, 1):
 				i = float(i) / SAMPLE_PTS * 2 * math.pi
-				x = int(16*math.sin(i)**3)*1000
-				y = int(13*math.cos(i) - 5*math.cos(2*i) - 2*math.cos(3*i) - math.cos(4*i))*1000 - 8000
-				pt = (x, y, CMAX, 0, CMAX/3)
+				x = int(16*math.sin(i)**3)*SIZE
+				y = int(13*math.cos(i) - 5*math.cos(2*i) - \
+						2*math.cos(3*i) - math.cos(4*i))*SIZE
+				#pt = (x, y, CMAX, 0, CMAX/3) # Original color before red died.
+				pt = (x, y, CMAX, CMAX, CMAX)
 				yield pt
 
 	def __init__(self):
