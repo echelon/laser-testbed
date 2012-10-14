@@ -26,6 +26,10 @@ LASER_POWER_DENOM = 1.0
 
 POINT_NUM_SAMPLE_PTS = 30
 
+BLINK_FACTOR = 7 # 1 in X chance it will not draw
+
+NUM_POINTS = 8
+
 X_MIN = -8000
 X_MAX = 8000
 Y_MIN = -8000
@@ -56,6 +60,12 @@ class Point(Shape):
 		"""
 		Generate the points of the circle.
 		"""
+		# Randomly off sometimes
+		if random.randint(0, BLINK_FACTOR) == 0:
+			self.drawn = True
+			self.life -= 1
+			return
+
 		r, g, b = (0, 0, 0)
 
 		r = 0 if not self.r else int(self.r / LASER_POWER_DENOM)
@@ -97,7 +107,7 @@ def dac_thread():
 def anim_thread():
 	global PS
 	while True:
-		if len(PS.objects) < 7:
+		if len(PS.objects) < NUM_POINTS:
 			x = random.randint(X_MIN, X_MAX)
 			y = random.randint(Y_MIN, Y_MAX)
 			life = random.randint(4, 7)

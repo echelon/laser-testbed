@@ -9,10 +9,10 @@ import sys
 import time
 
 COLOR_R = CMAX
-COLOR_G = 0
+COLOR_G = CMAX
 COLOR_B = CMAX
 
-SIZE = 10000
+SIZE = 20000
 XOFF = 0 
 YOFF = 15000
 
