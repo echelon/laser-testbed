@@ -1,19 +1,21 @@
 Laser Testbed
 -------------
+Various experiments I run on the projector. If I like something, it'll 
+be broken out into its own project and possibly ported to a precompiled
+langauge. 
 
-*Disclaimer:* 
+Early on this served as a tool for me to study and model the behavior 
+of the galvos. This is all still very experimental and remains 
+primarily a self-learning tool. 
 
-This is where I'll keep the various experiments I run on the laser.
-Very little of this qualifies as interesting or useful, it's just a 
-means for me to study and model the behavior of the galvos. This is 
-a learning tool. 
+License, etc.
+-------------
+This project includes Jacob's GPL-licensed daclib code for the 
+EtherDream DAC. My code is MIT-licensed. 
 
-I should mention that this was built for the EtherDream DAC. 
-Also, some of Jacob's code is in here, and it's GPL licensed. 
+My other (better) laser stuff
+-----------------------------
+* [Laser Asteroids](https://github.com/echelon/laser-asteroids) is a 
+  game loosely based on the arcade classic "Asteroids" that I 
+  programmed for the Fall 2012 Georgia Game Jam. 
 
-**Actual interesting stuff:**
-
-* [Laser Asteroids](https://github.com/echelon/laser-asteroids) is a game 
-  based on the classic "Asteroids" that I programmed for the EtherDream for
-  the 2012 Fall Georgia Game Jam. I'll incrementally improve it and add 
-  features as time allows.

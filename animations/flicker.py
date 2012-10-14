@@ -12,11 +12,10 @@ import sys
 import time
 import thread
 
-from daclib import dac
-from daclib.common import *
-
-from common.stream import PointStream
-from common.shape import Shape
+from lib import dac
+from lib.common import *
+from lib.stream import PointStream
+from lib.shape import Shape
 
 """
 CONFIGURATION

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-from daclib import dac
-from daclib.common import * 
+from lib import dac
+from lib.common import * 
 
 import math
 import itertools
@@ -51,7 +51,7 @@ class SpiralPointStream(object):
 		d = [self.stream.next() for i in xrange(n)]
 		return d
 
-d = dac.DAC("169.254.206.40")
+d = dac.DAC(dac.find_first_dac())
 
 ps = SpiralPointStream()
 d.play_stream(ps)

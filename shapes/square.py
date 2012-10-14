@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-from daclib import dac
-from daclib.common import *
+from lib import dac
+from lib.common import *
 
 import math
 import itertools
@@ -13,7 +13,7 @@ COLOR_G = CMAX
 COLOR_B = CMAX
 
 SIZE = 20000
-XOFF = 0 
+XOFF = 0
 YOFF = 15000
 
 def line_generator(pt1, pt2, backward=False, steps = 100):

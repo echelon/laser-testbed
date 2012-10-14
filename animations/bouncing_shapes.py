@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 
 """
-Now trying to do many bouncing balls. 
+Now trying to do many bouncing balls.
 Let's see how much we can throw at the projector.
 """
 
-from daclib import dac
-from daclib.common import * 
-from common.gui import BallGui
+from lib import dac
+from lib.common import *
+from lib.gui import BallGui
 
 import math
 import random
@@ -22,13 +22,13 @@ NASTY GLOBALS
 The gui will alter these.
 """
 LASER_POWER_DENOM = 4
-SHOW_BLANKING_PATH = False 
-BLANK_SAMPLE_PTS = 12 
+SHOW_BLANKING_PATH = False
+BLANK_SAMPLE_PTS = 12
 
 # XXX: Needs to increase proportionally to radius
-BALL_SAMPLE_PTS = 20 
+BALL_SAMPLE_PTS = 20
 TRIANGLE_EDGE_SAMPLE_PTS = 20
-SQUARE_EDGE_SAMPLE_PTS = 20 
+SQUARE_EDGE_SAMPLE_PTS = 20
 
 PAUSE_START_PTS = 9 # 8 seems optimum
 PAUSE_END_PTS = 9 # 8 seems optimum

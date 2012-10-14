@@ -8,14 +8,14 @@ PLAY WITH THE VARIABLES BELOW
 
 I'm writing this to learn how to effectively do blanking.
 
-Generates a random point, blanks to the next random point. 
+Generates a random point, blanks to the next random point.
 I need to be kind to the galvos...
 """
 
-from daclib import dac
-from daclib.common import * 
+from lib import dac
+from lib.common import *
 
-import random 
+import random
 import math
 import itertools
 import sys
@@ -112,6 +112,44 @@ class BlinkPointStreamWithBlanking(BlinkPointStream):
 			lastX = x
 			lastY = y
 
+class DitherColor(object):
+	def __init__(self, val=CMAX, inc=1):
+		self.val = val
+		self.direc = -1
+		self.inc = inc
+		self.incMin = DITHER_INC_MIN
+		self.incMax = DITHER_INC_MAX
+
+	def incr(self):
+		"""
+		Linearly increment and decrement the color intensity.
+		"""
+		val = self.val
+
+		if val < 0:
+			val = 0
+
+		if self.direc <= 0:
+			val -= self.inc
+			if val < CMIN_DEMO:
+				val = CMIN_DEMO
+				self.direc = 1
+				self.randomizeRate()
+		else:
+			val += self.inc
+			if val >= CMAX:
+				val = CMAX-1
+				self.direc = -1
+				self.randomizeRate()
+
+		self.val = val
+
+	def getVal(self):
+		return abs(int(self.val))
+
+	def randomizeRate(self):
+		self.inc = random.randint(self.incMin, self.incMax)
+
 def dac_thread():
 	"""Send stuff to the laser pj"""
 	while True:
@@ -164,44 +202,6 @@ def speed_thread():
 			time.sleep(turnOffWait)
 			SHOW_TRAVEL_PATH = not SHOW_TRAVEL_PATH
 		"""
-
-class DitherColor(object):
-	def __init__(self, val=CMAX, inc=1):
-		self.val = val
-		self.direc = -1
-		self.inc = inc
-		self.incMin = DITHER_INC_MIN
-		self.incMax = DITHER_INC_MAX
-
-	def incr(self):
-		"""
-		Linearly increment and decrement the color intensity.
-		"""
-		val = self.val
-
-		if val < 0:
-			val = 0
-
-		if self.direc <= 0:
-			val -= self.inc
-			if val < CMIN_DEMO:
-				val = CMIN_DEMO
-				self.direc = 1
-				self.randomizeRate()
-		else:
-			val += self.inc
-			if val >= CMAX:
-				val = CMAX-1
-				self.direc = -1
-				self.randomizeRate()
-
-		self.val = val
-
-	def getVal(self):
-		return abs(int(self.val))
-
-	def randomizeRate(self):
-		self.inc = random.randint(self.incMin, self.incMax)
 
 def color_thread():
 	global R, G, B

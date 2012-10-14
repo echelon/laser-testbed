@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-from daclib import dac
-from daclib.common import *
+from lib import dac
+from lib.common import *
 
 import math
 import itertools

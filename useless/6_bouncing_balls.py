@@ -8,8 +8,8 @@ one ball to the next (so there is no line drawn between them), as well as
 turning on the laser in time to draw a complete circle for each ball. 
 """
 
-from daclib import dac
-from daclib.common import * 
+from lib import dac
+from lib.common import * 
 
 import math
 import random
