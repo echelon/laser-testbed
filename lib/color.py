@@ -4,8 +4,8 @@ import math
 CMAX = 65535 # MAX COLOR VALUE
 CMIN_DITHERER = 10000
 
-DITHER_INC_MAX = 1000
-DITHER_INC_MIN = 10
+DITHER_INC_MAX = 3000
+DITHER_INC_MIN = 800
 
 """
 Predefined laser colors
@@ -85,27 +85,31 @@ class DitherColor(object):
 		self.incMin = DITHER_INC_MIN
 		self.incMax = DITHER_INC_MAX
 
+		self.min = 0
+		self.max = CMAX
+
 	def incr(self):
 		"""
-		Linearly increment and decrement the color intensity.
+		Linearly increment or decrement the color intensity.
 		"""
 		val = self.val
 
-		if val < 0:
-			val = 0
-
 		if self.direc <= 0:
 			val -= self.inc
-			if val < CMIN_DITHERER:
-				val = CMIN_DITHERER
+			if val < self.min:
+				val = self.min
 				self.direc = 1
 				self.randomizeRate()
+
 		else:
 			val += self.inc
-			if val >= CMAX:
-				val = CMAX-1
+			if val >= self.max:
+				val = self.max
 				self.direc = -1
 				self.randomizeRate()
+
+		if val < 0:
+			val = 0
 
 		self.val = val
 

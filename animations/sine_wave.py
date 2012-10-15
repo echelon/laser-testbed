@@ -32,11 +32,11 @@ COLOR_G = CMAX / 1
 COLOR_B = CMAX / 1
 
 WAVE_SAMPLE_PTS = 500
-WAVE_PERIODS = 3
-WAVE_RATE = 1
-WAVE_WIDTH = 22000 # XXX Not wavelength!
-WAVE_AMPLITUDE_MAGNITUDE = 3000 # dither between +/-
-WAVE_AMPLITUDE_RATE = 800
+WAVE_PERIODS = 4
+WAVE_RATE = 0.6
+WAVE_WIDTH = 42000 # XXX Not wavelength!
+WAVE_AMPLITUDE_MAGNITUDE = 15000 # dither between +/-
+WAVE_AMPLITUDE_RATE = 900
 
 """
 CODE BEGINS HERE
@@ -171,9 +171,17 @@ def animate_thread():
 def color_thread():
 	global SINEW
 
-	rr = DitherColor(inc = random.randint(50, 500))
-	gg = DitherColor(inc = random.randint(50, 500))
-	bb = DitherColor(inc = random.randint(50, 500))
+	rr = DitherColor(inc = random.randint(500, 5000))
+	gg = DitherColor(inc = random.randint(500, 5000))
+	bb = DitherColor(inc = random.randint(500, 5000))
+
+	# Unfortunately, my red laser is out of commission
+	rr.min = CMAX - 1
+	rr.max = CMAX
+	gg.min = CMAX / 2
+	gg.max = CMAX
+	bb.min = CMAX / 3
+	bb.max = CMAX
 
 	color = RandomColorAnimation()
 
@@ -183,13 +191,13 @@ def color_thread():
 		bb.incr()
 		color.frame()
 
-		SINEW.r = color.curColor.r
-		SINEW.g = color.curColor.g
-		SINEW.b = color.curColor.b
+		#SINEW.r = color.curColor.r
+		#SINEW.g = color.curColor.g
+		#SINEW.b = color.curColor.b
 
-		#SINEW.r = int(rr.getVal())
-		#SINEW.g = int(gg.getVal())
-		#SINEW.b = int(bb.getVal())
+		SINEW.r = int(rr.getVal())
+		SINEW.g = int(gg.getVal())
+		SINEW.b = int(bb.getVal())
 
 		time.sleep(0.1)
 
