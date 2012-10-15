@@ -14,9 +14,11 @@ var extract = function()
 	var objects = [];
 	for(var i = 0; i < paths.length; i++) {
 		var p = paths[i];
+		var len = p.getTotalLength();
 		var pts = [];
-		for(var j = 0; j < 70; j++) {
-			var z = j*20;
+		var SAMPLE = 80;
+		for(var j = 0; j < SAMPLE+1; j++) {
+			var z = len * (j/SAMPLE);
 			var pt = p.getPointAtLength(z);
 			pts.push(pt.x);
 			pts.push(pt.y);

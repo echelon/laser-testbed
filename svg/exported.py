@@ -143,6 +143,7 @@ def main():
 
 	for i in range(len(OBJECTS)): #obj in OBJECTS:
 		coords = OBJECTS[i]
+
 		# Normalize/fix coordinate system
 		for j in range(len(coords)):
 			c = coords[j]
@@ -156,8 +157,8 @@ def main():
 	ps = PointStream()
 	#ps.showBlanking = True
 	#ps.showTracking = True
-	ps.blankingSamplePts = 7
-	ps.trackingSamplePts = 20
+	ps.blankingSamplePts = 30
+	ps.trackingSamplePts = 30
 
 	thread.start_new_thread(dac_thread, ())
 	time.sleep(1.0)
