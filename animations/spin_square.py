@@ -39,7 +39,7 @@ PAN_X_INC_MAG = 1500
 PAN_X_MAX = 25000
 PAN_X_MIN = -25000
 
-SPIN_THETA_INC = math.pi / 6 
+SPIN_THETA_INC = math.pi / 6
 
 """
 CODE BEGINS HERE
@@ -47,7 +47,8 @@ CODE BEGINS HERE
 
 class Square(Shape):
 
-	def __init__(self, x = 0, y = 0, r = 0, g = 0, b = 0,
+	def __init__(self, x = 0, y = 0,
+			r = 0, g = 0, b = 0,
 			radius = 8200):
 
 		super(Square, self).__init__(x, y, r, g, b)
@@ -80,17 +81,22 @@ class Square(Shape):
 		for p in pts:
 			x = p['x']
 			y = p['y']
-			p['x'] = x*math.cos(self.theta) - y*math.sin(self.theta)
-			p['y'] = y*math.cos(self.theta) + x*math.sin(self.theta)
+			p['x'] = x*math.cos(self.theta) \
+					- y*math.sin(self.theta)
+			p['y'] = y*math.cos(self.theta) \
+					+ x*math.sin(self.theta)
 
 		# Translate points
 		for pt in pts:
 			pt['x'] += self.x
 			pt['y'] += self.y
 
-		r = 0 if not self.r else int(self.r / LASER_POWER_DENOM)
-		g = 0 if not self.g or LASER_POWER_DENOM > 4 else self.g
-		b = 0 if not self.b else int(self.b / LASER_POWER_DENOM)
+		r = 0 if not self.r else int(self.r /
+				LASER_POWER_DENOM)
+		g = 0 if not self.g or LASER_POWER_DENOM > \
+				4 else self.g
+		b = 0 if not self.b else int(self.b /
+				LASER_POWER_DENOM)
 
 		def make_line(pt1, pt2, steps=200):
 			xdiff = pt1['x'] - pt2['x']
@@ -100,38 +106,45 @@ class Square(Shape):
 				j = float(i)/steps
 				x = pt1['x'] - (xdiff * j)
 				y = pt1['y'] - (ydiff * j)
-				line.append((x, y, r, g, b)) # XXX FIX COLORS
+				# XXX: FIX COLORS
+				line.append((x, y, r, g, b))
 			return line
 
 		# DRAW THE SHAPE
 
 		p = None # Save in scope
 
-		for p in make_line(pts[0], pts[1], SQUARE_EDGE_SAMPLE_PTS):
+		for p in make_line(pts[0], pts[1],
+				SQUARE_EDGE_SAMPLE_PTS):
 			break
-		for i in range(int(round(SQUARE_VERTEX_SAMPLE_PTS/2.0))):
+		for i in range(int(round(
+				SQUARE_VERTEX_SAMPLE_PTS/2.0))):
 			yield p
-		for p in make_line(pts[0], pts[1], SQUARE_EDGE_SAMPLE_PTS):
-			yield p
-		for i in range(SQUARE_VERTEX_SAMPLE_PTS):
-			yield p
-		for p in make_line(pts[1], pts[2], SQUARE_EDGE_SAMPLE_PTS):
+		for p in make_line(pts[0], pts[1],
+				SQUARE_EDGE_SAMPLE_PTS):
 			yield p
 		for i in range(SQUARE_VERTEX_SAMPLE_PTS):
 			yield p
-		for p in make_line(pts[2], pts[3], SQUARE_EDGE_SAMPLE_PTS):
+		for p in make_line(pts[1], pts[2],
+				SQUARE_EDGE_SAMPLE_PTS):
 			yield p
 		for i in range(SQUARE_VERTEX_SAMPLE_PTS):
 			yield p
-		for p in make_line(pts[3], pts[0], SQUARE_EDGE_SAMPLE_PTS):
+		for p in make_line(pts[2], pts[3],
+				SQUARE_EDGE_SAMPLE_PTS):
+			yield p
+		for i in range(SQUARE_VERTEX_SAMPLE_PTS):
+			yield p
+		for p in make_line(pts[3], pts[0],
+				SQUARE_EDGE_SAMPLE_PTS):
 			self.lastPt = p # KEEP BOTH
 			yield p
-		for i in range(int(round(SQUARE_VERTEX_SAMPLE_PTS/2.0))):
+		for i in range(int(round(
+				SQUARE_VERTEX_SAMPLE_PTS/2.0))):
 			self.lastPt = p # KEEP BOTH
 			yield p
 
 		self.drawn = True
-
 
 def dac_thread():
 	global SQUARE
