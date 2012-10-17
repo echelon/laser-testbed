@@ -48,12 +48,14 @@ class PointStream(object):
 			nextObj = None # XXX SCOPE HERE FOR DEBUG ONLY
 
 			try:
+				# XXX: Memory copy for opencv app
+				objects = self.objects[:]
 
 				# Generate and cache the first points of the objects.
 				# Necessary in order to slow down galvo tracking as we
 				# move to the next object. 
 
-				for b in self.objects:
+				for b in objects:
 					b.cacheFirstPt()
 
 				# Objects to destroy at end of loop
@@ -86,9 +88,9 @@ class PointStream(object):
 				"""
 
 				# Draw all the objects... 
-				for i in range(len(self.objects)):
-					curObj = self.objects[i]
-					nextObj = self.objects[(i+1)%len(self.objects)]
+				for i in range(len(objects)):
+					curObj = objects[i]
+					nextObj = objects[(i+1)%len(objects)]
 
 					# Skip draw?
 					if curObj.skipDraw:
@@ -159,7 +161,7 @@ class PointStream(object):
 							yield (xb, yb, 0, 0, 0)
 
 				# Reset object state (nasty hack for point caching)
-				for b in self.objects:
+				for b in objects:
 					b.drawn = False
 
 				# Items to destroy
@@ -167,7 +169,7 @@ class PointStream(object):
 				destroy.sort()
 				destroy.reverse()
 				for i in destroy:
-					self.objects.pop(i)
+					objects.pop(i)
 
 			except Exception as e:
 				import sys, traceback
