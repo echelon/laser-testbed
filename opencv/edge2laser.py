@@ -14,7 +14,6 @@ from lib.common import *
 from lib.stream import PointStream
 from lib.shape import Shape
 
-
 """
 CONFIGURATION
 """
@@ -30,11 +29,9 @@ obj = None
 ps = None
 frame = None # OpenCV camera
 
-
 """
 Animation code / logic
 """
-
 
 class Contour(Shape):
 
@@ -49,7 +46,7 @@ class Contour(Shape):
 		self.theta = 0
 		self.thetaRate = 0
 
-		self.ctour = [] # XXX: SET BY THREAD
+		self.ctour = [] # XXX: SET BY THREAD !!
 		if ctour:
 			self.ctour = ctour
 
@@ -57,12 +54,8 @@ class Contour(Shape):
 		"""
 		Generate the points of the circle.
 		"""
-		r, g, b = (0, 0, 0)
-
 		for c in self.ctour:
-			x = c['x']
-			y = c['y']
-			yield (x, y, CMAX, CMAX, CMAX)
+			yield (c['x'], c['y'], CMAX, CMAX, CMAX)
 
 		self.drawn = True
 
@@ -82,23 +75,21 @@ def camera_thread():
 
 	while True:
 		rval, frame = vc.read()
-		time.sleep(0.1)
+		time.sleep(0.05)
 
 def opencv_thread():
 	global obj
 	global ps
 	global frame
 
-	#vc = cv2.VideoCapture(0)
+	width = 400
+	height = 400
+	x1 = 150
+	y1 = 70
+	x2 = x1 + width
+	y2 = y1 + height
 
 	while True:
-
-		width = 400
-		height = 400
-		x1 = 150
-		y1 = 70
-		x2 = x1 + width
-		y2 = y1 + height
 
 		cropped = frame[y1:y2, x1:x2]
 
@@ -108,11 +99,9 @@ def opencv_thread():
 
 		time.sleep(0.01)
 
-
 		kern = 9
 		smooth = gray
 		smooth = cv2.GaussianBlur(gray, (kern, kern), 0)
-		#smooth = cv2.GaussianBlur(smooth, (15,15), 0)
 
 		time.sleep(0.01)
 
@@ -141,8 +130,8 @@ def opencv_thread():
 			if len(c) < 50:
 				continue
 
-			#if random.randint(0, 1) == 0:
-			#	continue
+			if random.randint(0, 3) == 0:
+				continue
 
 			ct = []
 			i = 0
