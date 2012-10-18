@@ -5,10 +5,11 @@ import cv2
 
 cv2.namedWindow('capture')
 cv2.namedWindow('smooth')
-cv2.namedWindow('binary')
-cv2.namedWindow('erode')
+#cv2.namedWindow('binary')
+cv2.namedWindow('canny')
+#cv2.namedWindow('erode')
 cv2.namedWindow('dilate')
-cv2.namedWindow('morph')
+cv2.namedWindow('out')
 
 vc = cv2.VideoCapture(0)
 
@@ -42,25 +43,30 @@ while rval:
 
 	smooth = gray
 	smooth = cv2.GaussianBlur(gray, (15,15), 0)
-	#smooth = cv2.GaussianBlur(smooth, (15,15), 0)
+	smooth = cv2.GaussianBlur(smooth, (15,15), 0)
 
-	binary = cv2.adaptiveThreshold(smooth, 255,
+	"""binary = cv2.adaptiveThreshold(smooth, 255,
 				cv2.ADAPTIVE_THRESH_MEAN_C,
 				cv2.THRESH_BINARY, 5, 0)
+	"""
+
+	thresh1 = 30.0 # HI -- 50 is great!
+	thresh2 = thresh1 - 15.0 # LOW -- 10 is good.
+	canny = cv2.Canny(smooth, thresh1, thresh2)
 
 	# morph_erode, morph_...
 	#kern = cv2.getStructuringElement(cv2.MORPH_CROSS, (3,3))
 	kern = cv2.getStructuringElement(cv2.MORPH_CROSS, (5,5))
-	erode = cv2.erode(binary, kern)
-	dilate = cv2.dilate(binary, kern)
-	morph = cv2.dilate(erode, kern)
+	#erode = cv2.erode(binary, kern)
+	dilate = cv2.dilate(canny, kern)
+	dilate = cv2.erode(dilate, kern)
+	#im = morph.copy()
 
+	im = dilate.copy()
 
-
-	im = morph.copy()
 
 	ctours, hier = cv2.findContours(im,
-						method=cv2.CHAIN_APPROX_NONE,
+						method=cv2.CHAIN_APPROX_SIMPLE,
 						mode=cv2.RETR_EXTERNAL)
 
 	out = frame.copy()
@@ -71,10 +77,8 @@ while rval:
 
 	cv2.imshow('capture', frame)
 	cv2.imshow('smooth', smooth)
-	cv2.imshow('binary', binary)
-	cv2.imshow('erode', erode)
+	cv2.imshow('canny', canny)
 	cv2.imshow('dilate', dilate)
-	cv2.imshow('morph', morph)
 	cv2.imshow('out', out)
 
 	key = cv2.waitKey(20)

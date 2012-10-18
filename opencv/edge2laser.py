@@ -207,16 +207,21 @@ def opencv_thread():
 		ctours2 = []
 		i = 0
 		for c in ctours:
-			if len(c) < 170:
+			if len(c) < 80:
 				continue
 
 			time.sleep(0.15)
 			ct = []
 			i = 0
 			for d in c:
+				ln = len(d)
 				for e in d:
 					i += 1
-					if i % 4 != 0:
+					# XXX: Use this to control flicker
+					# by reducing the number of points
+					if ln < 250 and i % 2 != 0:
+						continue
+					elif ln > 250 and i % 10 != 0:
 						continue
 					x = e[0] * -30
 					y = e[1] * -30
