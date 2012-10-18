@@ -4,11 +4,12 @@ import math
 import cv2
 
 cv2.namedWindow('capture')
+cv2.namedWindow('cropped')
 cv2.namedWindow('smooth')
 #cv2.namedWindow('binary')
 cv2.namedWindow('canny')
 #cv2.namedWindow('erode')
-cv2.namedWindow('dilate')
+#cv2.namedWindow('dilate')
 cv2.namedWindow('out')
 
 vc = cv2.VideoCapture(0)
@@ -21,11 +22,20 @@ vc = cv2.VideoCapture(0)
 
 rval = True
 
-while rval:
-	#cv2.imshow("capture", frame)
-	rval, frame = vc.read()
+while False:
 
-	gray = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
+	"""binary = cv2.adaptiveThreshold(smooth, 255,
+				cv2.ADAPTIVE_THRESH_MEAN_C,
+				cv2.THRESH_BINARY, 5, 0)
+	"""
+
+	# morph_erode, morph_...
+	#kern = cv2.getStructuringElement(cv2.MORPH_CROSS, (3,3))
+	#kern = cv2.getStructuringElement(cv2.MORPH_CROSS, (5,5))
+	#erode = cv2.erode(binary, kern)
+	#dilate = cv2.dilate(canny, kern)
+	#dilate = cv2.erode(dilate, kern)
+	#im = morph.copy()
 
 	"""
 	rho = 1
@@ -41,44 +51,51 @@ while rval:
 	#print "========="
 	"""
 
+while rval:
+	rval, frame = vc.read()
+
+	width = 400
+	height = 400
+	x1 = 150
+	y1 = 70
+	x2 = x1 + width
+	y2 = y1 + height
+
+	cropped = frame[y1:y2, x1:x2]
+
+	gray = cv2.cvtColor(cropped, cv2.COLOR_RGB2GRAY)
+
+
+
+	kern = 9
 	smooth = gray
-	smooth = cv2.GaussianBlur(gray, (15,15), 0)
-	smooth = cv2.GaussianBlur(smooth, (15,15), 0)
+	smooth = cv2.GaussianBlur(gray, (kern, kern), 0)
+	#smooth = cv2.GaussianBlur(smooth, (15,15), 0)
 
-	"""binary = cv2.adaptiveThreshold(smooth, 255,
-				cv2.ADAPTIVE_THRESH_MEAN_C,
-				cv2.THRESH_BINARY, 5, 0)
-	"""
 
-	thresh1 = 30.0 # HI -- 50 is great!
-	thresh2 = thresh1 - 15.0 # LOW -- 10 is good.
+	thresh1 = 40.0 # HI -- 50 is great!
+	thresh2 = thresh1 #- 15.0 # LOW -- 10 is good.
 	canny = cv2.Canny(smooth, thresh1, thresh2)
 
-	# morph_erode, morph_...
-	#kern = cv2.getStructuringElement(cv2.MORPH_CROSS, (3,3))
-	kern = cv2.getStructuringElement(cv2.MORPH_CROSS, (5,5))
-	#erode = cv2.erode(binary, kern)
-	dilate = cv2.dilate(canny, kern)
-	dilate = cv2.erode(dilate, kern)
-	#im = morph.copy()
+	im = canny.copy()
 
-	im = dilate.copy()
-
-
+	method = cv2.CHAIN_APPROX_NONE
+	#method = cv2.CHAIN_APPROX_SIMPLE
 	ctours, hier = cv2.findContours(im,
-						method=cv2.CHAIN_APPROX_SIMPLE,
+						method=method,
 						mode=cv2.RETR_EXTERNAL)
 
-	out = frame.copy()
+	out = cropped.copy()
 	for i in range(len(ctours)):
-		if len(ctours[i]) < 50:
+		if len(ctours[i]) < 5:
 			continue
 		cv2.drawContours(out, ctours, i, (255, 0, 0))
 
 	cv2.imshow('capture', frame)
+	cv2.imshow('cropped', cropped)
 	cv2.imshow('smooth', smooth)
 	cv2.imshow('canny', canny)
-	cv2.imshow('dilate', dilate)
+	#cv2.imshow('dilate', dilate)
 	cv2.imshow('out', out)
 
 	key = cv2.waitKey(20)

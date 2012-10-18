@@ -2,6 +2,7 @@
 
 import os
 import math
+import random
 import cv2
 import itertools
 import sys
@@ -65,65 +66,16 @@ class Contour(Shape):
 
 		self.drawn = True
 
-class Contours(Shape):
-
-	def __init__(self, x = 0, y = 0,
-			r = 0, g = 0, b = 0):
-		super(Contours, self).__init__(x, y, r, g, b)
-
-		self.drawn = False
-		self.pauseFirst = True
-		self.pauseLast = True
-
-		self.theta = 0
-		self.thetaRate = 0
-
-		self.ctours = [] # XXX: SET BY THREAD
-
-	def produce(self):
-		"""
-		Generate the points of the circle.
-		"""
-		r, g, b = (0, 0, 0)
-
-		"""
-		rval, frame = self.vc.read()
-
-		gray = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
-		smooth = cv2.GaussianBlur(gray, (7,7), 0)
-
-		binary = cv2.adaptiveThreshold(smooth, 255,
-					cv2.ADAPTIVE_THRESH_MEAN_C,
-					cv2.THRESH_BINARY, 3, 0)
-
-		kern = cv2.getStructuringElement(
-					cv2.MORPH_CROSS, (3,3))
-		erode = cv2.erode(binary, kern)
-
-		im = erode.copy()
-		ctours, hier = cv2.findContours(im,
-							method=cv2.CHAIN_APPROX_NONE,
-							mode=cv2.RETR_EXTERNAL)
-		"""
-
-		"""
-		for c in self.ctours:
-			for d in c:
-				for e in d:
-					x = e[0] * 10
-					y = e[1] * 10
-					yield (x, y, CMAX, CMAX, CMAX)
-		"""
-
-		for c in self.ctours:
-			x = c['x']
-			y = c['y']
-			yield (x, y, CMAX, CMAX, CMAX)
-
-
-		self.drawn = True
-
 def camera_thread():
+	"""
+	This thread *has* to exist on its own or the
+	camera frames will get bogged down by any
+	processing that occurs on them. This will result
+	in seconds-long delay and is annoying as heck.
+
+	It's unfortunate that this must be a thread,
+	but it must.
+	"""
 	global frame
 
 	vc = cv2.VideoCapture(0)
@@ -141,76 +93,57 @@ def opencv_thread():
 
 	while True:
 
-		#rval, frame = vc.read()
-		gray = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
+		width = 400
+		height = 400
+		x1 = 150
+		y1 = 70
+		x2 = x1 + width
+		y2 = y1 + height
 
-		time.sleep(0.15)
+		cropped = frame[y1:y2, x1:x2]
+
+		time.sleep(0.01)
+
+		gray = cv2.cvtColor(cropped, cv2.COLOR_RGB2GRAY)
+
+		time.sleep(0.01)
+
+
+		kern = 9
 		smooth = gray
-		smooth = cv2.GaussianBlur(gray, (15,15), 0)
+		smooth = cv2.GaussianBlur(gray, (kern, kern), 0)
 		#smooth = cv2.GaussianBlur(smooth, (15,15), 0)
 
-		time.sleep(0.15)
-		binary = cv2.adaptiveThreshold(smooth, 255,
-					cv2.ADAPTIVE_THRESH_MEAN_C,
-					cv2.THRESH_BINARY, 5, 0)
+		time.sleep(0.01)
 
-		# morph_erode, morph_...
-		#kern = cv2.getStructuringElement(cv2.MORPH_CROSS, (3,3))
-		kern = cv2.getStructuringElement(cv2.MORPH_CROSS, (5,5))
-		time.sleep(0.15)
-		erode = cv2.erode(binary, kern)
-		time.sleep(0.15)
-		dilate = cv2.dilate(binary, kern)
-		time.sleep(0.15)
-		morph = cv2.dilate(erode, kern)
+		thresh1 = 40.0 # HI -- 50 is great!
+		thresh2 = thresh1 #- 15.0 # LOW -- 10 is good.
+		canny = cv2.Canny(smooth, thresh1, thresh2)
 
+		time.sleep(0.01)
 
-		time.sleep(0.15)
+		im = canny.copy()
 
-		im = morph.copy()
-
+		time.sleep(0.01)
+		method = cv2.CHAIN_APPROX_NONE
+		#method = cv2.CHAIN_APPROX_SIMPLE
 		ctours, hier = cv2.findContours(im,
-							method=cv2.CHAIN_APPROX_NONE,
+							method=method,
 							mode=cv2.RETR_EXTERNAL)
 
-
-		"""
-		rval, frame = vc.read()
-
-		gray = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
-		smooth = cv2.GaussianBlur(gray, (15,15), 0)
-
-		time.sleep(0.05)
-
-		binary = cv2.adaptiveThreshold(smooth, 255,
-					cv2.ADAPTIVE_THRESH_MEAN_C,
-					cv2.THRESH_BINARY, 7, 0)
-
-		time.sleep(0.05)
-
-		kern = cv2.getStructuringElement(
-					cv2.MORPH_CROSS, (3,3))
-		erode = cv2.erode(binary, kern)
-
-		time.sleep(0.05)
-
-		im = erode.copy()
-		ctours, hier = cv2.findContours(im,
-							method=cv2.CHAIN_APPROX_NONE,
-							mode=cv2.RETR_EXTERNAL)
-
-		"""
-
-		time.sleep(0.15)
+		time.sleep(0.01)
 
 		ctourObjs = []
 		ctours2 = []
 		i = 0
+		time.sleep(0.1)
 		for c in ctours:
-			if len(c) < 80:
+			if len(c) < 50:
 				continue
 
-			time.sleep(0.15)
+			#if random.randint(0, 1) == 0:
+			#	continue
+
 			ct = []
 			i = 0
 			for d in c:
@@ -221,10 +154,12 @@ def opencv_thread():
 					# by reducing the number of points
 					if ln < 250 and i % 2 != 0:
 						continue
+					"""
 					elif ln > 250 and i % 10 != 0:
 						continue
-					x = e[0] * -30
-					y = e[1] * -30
+					"""
+					x = e[0] * -80
+					y = e[1] * -80
 					ct.append({'x': x, 'y': y})
 
 			cto = Contour(ctour=ct)
@@ -233,39 +168,25 @@ def opencv_thread():
 		ps.objects = []
 		ps.objects = ctourObjs
 
-		"""
-		ctourObjs = []
-		for c in ctours2:
-			c = Contour(ctour=c)
-			ctourObjs.append(c)
-
-		ps.objects = []
-		ps.objects = ctourObjs
-		"""
-
 		time.sleep(0.1)
 
 def dac_thread():
 	global obj
 	global ps
 
-	#ps.objects.append(obj)
+	d = dac.DAC(dac.find_first_dac())
 
 	while True:
 		try:
-			d = dac.DAC(dac.find_first_dac())
 			d.play_stream(ps)
 
 		except KeyboardInterrupt:
 			sys.exit()
 
 		except Exception as e:
-			import sys, traceback
-			print '\n---------------------'
-			print 'Exception: %s' % e
-			print '- - - - - - - - - - -'
-			traceback.print_tb(sys.exc_info()[2])
-			print "\n"
+			# Reset playback so galvos keep spinning
+			d.last_status.playback_state = 0
+			d.last_status.fullness = 1799
 
 #
 # Start Threads
@@ -275,7 +196,6 @@ def main():
 	global obj
 	global ps
 
-	obj = Contours()
 	ps = PointStream()
 	#ps.showBlanking = True
 	#ps.showTracking = True
