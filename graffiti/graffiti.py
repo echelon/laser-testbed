@@ -61,7 +61,7 @@ class Graffiti(Shape):
 		self.pauseFirst = True
 		self.pauseLast = True
 
-		self.theta = 0
+		self.theta = math.pi*0.5
 		self.thetaRate = 0
 
 		self.gml = getGml(filename)
@@ -74,8 +74,18 @@ class Graffiti(Shape):
 
 		for stroke in self.gml.iterStrokes():
 			for pt in stroke.iterPoints():
-				x = pt.x * 20000
-				y = pt.y * 20000
+
+				x = pt.x * 10000
+				y = pt.y * 10000
+
+				xx = x
+				yy = y
+
+				x = xx*math.cos(self.theta) - \
+						yy*math.sin(self.theta)
+				y = yy*math.cos(self.theta) + \
+						xx*math.sin(self.theta)
+
 				yield (x, y, CMAX, CMAX, CMAX)
 
 		self.drawn = True

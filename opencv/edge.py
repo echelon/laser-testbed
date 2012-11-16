@@ -79,11 +79,13 @@ while rval:
 
 	im = canny.copy()
 
+	mode = cv2.RETR_EXTERNAL
+	#mode = cv2.RETR_LIST
 	method = cv2.CHAIN_APPROX_NONE
 	#method = cv2.CHAIN_APPROX_SIMPLE
 	ctours, hier = cv2.findContours(im,
 						method=method,
-						mode=cv2.RETR_EXTERNAL)
+						mode=mode)
 
 	out = cropped.copy()
 	for i in range(len(ctours)):

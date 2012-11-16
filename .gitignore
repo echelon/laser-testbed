@@ -1,2 +1,9 @@
 *~
 *pyc
+build/*
+music/*
+svg/js/*svg
+svg/js/files
+svg/files
+svg/objs/*
+graffiti/gml/*gml

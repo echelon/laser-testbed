@@ -20,6 +20,8 @@ import scipy
 import struct
 import scipy.fftpack
 
+from pylab import *
+
 from lib import dac
 from lib.common import *
 from lib.stream import PointStream
@@ -34,85 +36,70 @@ sampleRate=48100
 
 AVERAGE = 0.0
 MAX = 0.0
+FFTY = [0.0]*10
 
-
-p = pyaudio.PyAudio()
 chunks = []
 ffts = []
 
 def stream():
-	global chunks, inStream, bufferSize
-	while True:
-		chunks.append(inStream.read(bufferSize))
-		time.sleep(0.1)
+	global bufferSize, chunks
 
-def record():
-	global inStream, p, bufferSize
+	p = pyaudio.PyAudio()
+
 	inStream = p.open(format=pyaudio.paInt16,channels=1,\
 					rate=sampleRate,input=True,
 					frames_per_buffer=bufferSize)
 
-	threading.Thread(target=stream).start()
-	time.sleep(0.1)
-
-def downSample(fftx,ffty,degree=10):
-	x, y =[], []
-	for i in range(len(ffty)/degree-1):
-		x.append(fftx[i*degree+degree/2])
-		y.append(sum(ffty[i*degree:(i+1)*degree])/degree)
-
-	return [x,y]
-
-def smoothWindow(fftx,ffty,degree=10):
-	lx, ly = fftx[degree:-degree],[]
-	for i in range(degree,len(ffty)-degree):
-		ly.append(sum(ffty[i-degree:i+degree]))
-
-	return [lx,ly]
-
-def smoothMemory(ffty,degree=3):
-	global ffts
-	ffts = ffts+[ffty]
-	if len(ffts) <= degree:
-		return ffty
-
-	ffts=ffts[1:]
-	return scipy.average(scipy.array(ffts),0)
-
-
-def detrend(fftx,ffty,degree=10):
-	lx,ly=fftx[degree:-degree],[]
-	for i in range(degree,len(ffty)-degree):
-		ly.append(ffty[i]-sum(ffty[i-degree:i+degree])/(degree*2))
-		#ly.append(fft[i]-(ffty[i-degree]+ffty[i+degree])/2)
-
-	return [lx,ly]
+	while True:
+		chunks.append(inStream.read(bufferSize))
+		time.sleep(0.1)
 
 def graph():
-	global AVERAGE, MAX
+	global AVERAGE, MAX, FFTY
 	global chunks, bufferSize, fftx,ffty
-	if len(chunks)>0:
+
+	if len(chunks) > 0:
 		data = chunks.pop(0)
-		data=scipy.array(struct.unpack("%dB"%(bufferSize*2),data))
-		#print "RECORDED",len(data)/float(sampleRate),"SEC"
-		ffty=scipy.fftpack.fft(data)
-		fftx=scipy.fftpack.rfftfreq(bufferSize*2, 1.0/sampleRate)
-		fftx=fftx[0:len(fftx)/4]
-		ffty=abs(ffty[0:len(ffty)/2])/1000
-		ffty1=ffty[:len(ffty)/2]
-		ffty2=ffty[len(ffty)/2::]+2
-		ffty2=ffty2[::-1]
+		data = scipy.array(struct.unpack("%dB"%(bufferSize*2),data))
+
+		MX = max(data)
+		AVG = np.mean(data)
+
+		#print MX, AVG
+
+		ffty = scipy.fftpack.fft(data)
+		#fftx = scipy.fftpack.rfftfreq(bufferSize*2, 1.0/sampleRate)
+		#fftx = fftx[0:len(fftx)/4]
+		ffty = abs(ffty[0:len(ffty)/2])/1000
+		#ffty1 = ffty[:len(ffty)/2]
+		#ffty2 = ffty[len(ffty)/2::]+2
+		#ffty2 = ffty2[::-1]
+
 		#ffty=ffty1+ffty2
-		#ffty=scipy.log(ffty)-2
-		#fftx,ffty=downSample(fftx,ffty,5)
-		#fftx,ffty=detrend(fftx,ffty,30)
-		#fftx,ffty=smoothWindow(fftx,ffty,10)
-		#ffty=smoothMemory(ffty,3)
-		#fftx,ffty=detrend(fftx,ffty,10)          
-		#w.add(wckgraph.Axes(extent=(0, -1, fftx[-1], 3)))
+		ffty=scipy.log(ffty)-2	
+
+
+		#ffty = ffty[:100] + ffty[len(ffty)-100:]
+
+		srt = list(ffty[:])
+
+		srt.sort(reverse=True)
+		ffty = srt[1:100]
+		#ffty = srt[:10]
+		#print sort[:10]
+
+		FFTY = srt
+
+		#plot(range(len(ffty)), ffty)
+		#show()
 
 		AVERAGE = np.mean(ffty)
+		STDEV = np.std(ffty)
 		MAX = max(ffty)
+		MIN = min(ffty)
+		RNG = MAX - MIN
+		#MAX = STDEV
+
         if len(chunks)>20:
 			print "falling behind...",len(chunks)
 			chunks = []
@@ -144,7 +131,7 @@ COLOR_B = CMAX / 1
 
 WAVE_SAMPLE_PTS = 500
 WAVE_PERIODS = 4
-WAVE_RATE = 0.9
+WAVE_RATE = 1.1
 WAVE_WIDTH = 42000 # XXX Not wavelength!
 WAVE_AMPLITUDE_MAGNITUDE = 15000 # dither between +/-
 WAVE_AMPLITUDE_RATE = 900
@@ -250,10 +237,11 @@ def dac_thread():
 			print '- - - - - - - - - - -'
 			traceback.print_tb(sys.exc_info()[2])
 			print "\n"
+			pass
 
 def animate_thread():
 	global SINEW
-	global AVERAGE, MAX
+	global AVERAGE, MAX, FFTY
 
 	inc = True
 	panInc = True
@@ -262,7 +250,8 @@ def animate_thread():
 	spin = 0
 
 	ampDirec = 1
-	threading.Thread(target=record).start()
+
+	threading.Thread(target=stream).start()
 
 	while True:
 		# Translation rate animation
@@ -285,13 +274,24 @@ def animate_thread():
 
 		graph()
 
-		MULT = 9000
-		bg = 4.00
-		print MAX, AVERAGE
-		#print (AVERAGE-bg)*MULT
+		y = np.std(FFTY[1:5])
 
-		amp = max(AVERAGE-bg, 0.001)
-		amp *= MULT
+		print y
+
+		##print "Mean: %f" % y
+
+		# Clamp value to [-3, 3]
+		y = max(min(y, 3.0), -3.0)
+
+		# Normalize to [-1, 1]
+		y /= 3.0
+
+		#print y
+
+		amp = (y*10)**3
+		amp *= 10
+
+		#print amp
 
 		SINEW.sinePos += WAVE_RATE
 		SINEW.sineAmp = amp

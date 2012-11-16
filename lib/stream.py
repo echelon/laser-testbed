@@ -38,22 +38,29 @@ class PointStream(object):
 
 	def produce(self):
 		"""
-		This infinite loop functions as an infinite point generator.
-		It generates points for both balls as well as the "blanking"
-		that must occur between them.
+		This infinite loop functions as an infinite point
+		generator. It generates points for objects as well
+		as the "tracking" and "blanking" points that must
+		occur between object draws.
 		"""
 		while True:
 			#print "POINT STREAM LOOP BEGIN"
 			curObj = None # XXX SCOPE HERE FOR DEBUG ONLY
 			nextObj = None # XXX SCOPE HERE FOR DEBUG ONLY
+			reverse = False
 
 			try:
 				# XXX: Memory copy for opencv app
 				objects = self.objects[:]
 
-				# Generate and cache the first points of the objects.
-				# Necessary in order to slow down galvo tracking as we
-				# move to the next object. 
+				# Reverse heuristic
+				reverse = not reverse
+				if reverse:
+					objects.reverse()
+
+				# Generate and cache the first points of the
+				# objects. Necessary in order to slow down 
+				# galvo tracking as we move to the next object.
 
 				for b in objects:
 					b.cacheFirstPt()
@@ -61,12 +68,11 @@ class PointStream(object):
 				# Objects to destroy at end of loop
 				destroy = []
 
-
 				"""
-				# TOPOLOGICAL SORT OF OBJECTS TO MAKE DRAWING W/
-				# GALVOS EFFICIENT!
+				# TOPOLOGICAL SORT OF OBJECTS TO MAKE DRAWING
+				# W/ GALVOS EFFICIENT!
 				sortedObjects = []
-				presort = self.objects[:]
+				presort = objects[:]
 				sortedObjects.append(presort.pop(0))
 				while len(presort):
 					#lowx = presort[0].x
@@ -83,8 +89,8 @@ class PointStream(object):
 							li = i
 					sortedObjects.append(presort.pop(li))
 
-				#sortedObjects = self.objects[:]
-				self.objects = sortedObjects # XXX TURN OFF HERE
+				#sortedObjects = objects[:]
+				objects = sortedObjects # XXX TURN OFF HERE
 				"""
 
 				# Draw all the objects... 

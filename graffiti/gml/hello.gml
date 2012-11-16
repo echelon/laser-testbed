@@ -1,37 +1,7 @@
 <GML spec="0.1b">
-    
     <tag>
-        
-        <header>
-            
-            <client>
-                
-                <name>Fat Tag - Katsu Edition</name>
-                <version>1.0</version>
-                <username>FatTag</username>
-                <keywords>fattag, jdubs</keywords>
-                <uniqueKey>2ed11569319bcc77964223f56c4c9af62f58dccc</uniqueKey>
-            </client>
-        </header>
-        <environment>
-            
-            <up>
-                
-                <x>1</x>
-                <y>0</y>
-                <z>0</z>
-            </up>
-            <screenBounds>
-                
-                <x>480</x>
-                <y>320</y>
-                <z>18.000000</z>
-            </screenBounds>
-        </environment>
-        <drawing>
-            
+      <drawing>
             <stroke>
-                
                 <pt>
                     
                     <x>0.828125</x>

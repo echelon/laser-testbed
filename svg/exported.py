@@ -157,8 +157,8 @@ def main():
 	ps = PointStream()
 	#ps.showBlanking = True
 	#ps.showTracking = True
-	ps.blankingSamplePts = 30
-	ps.trackingSamplePts = 30
+	ps.blankingSamplePts = 7
+	ps.trackingSamplePts = 7
 
 	thread.start_new_thread(dac_thread, ())
 	time.sleep(1.0)

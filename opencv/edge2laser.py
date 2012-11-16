@@ -82,56 +82,60 @@ def opencv_thread():
 	global ps
 	global frame
 
-	width = 400
-	height = 400
+	width = 300 # 400
+	height = 300 # 400
 	x1 = 150
 	y1 = 70
 	x2 = x1 + width
 	y2 = y1 + height
 
+	size = 50 # 80
 	while True:
 
 		cropped = frame[y1:y2, x1:x2]
 
-		time.sleep(0.01)
+		time.sleep(0.02)
 
 		gray = cv2.cvtColor(cropped, cv2.COLOR_RGB2GRAY)
 
-		time.sleep(0.01)
+		time.sleep(0.02)
 
 		kern = 9
 		smooth = gray
 		smooth = cv2.GaussianBlur(gray, (kern, kern), 0)
 
-		time.sleep(0.01)
+		time.sleep(0.02)
 
-		thresh1 = 40.0 # HI -- 50 is great!
+		thresh1 = 100.0 # HI -- 50 is great!
 		thresh2 = thresh1 #- 15.0 # LOW -- 10 is good.
 		canny = cv2.Canny(smooth, thresh1, thresh2)
 
-		time.sleep(0.01)
+		time.sleep(0.02)
 
 		im = canny.copy()
 
-		time.sleep(0.01)
+		time.sleep(0.02)
 		method = cv2.CHAIN_APPROX_NONE
 		#method = cv2.CHAIN_APPROX_SIMPLE
 		ctours, hier = cv2.findContours(im,
 							method=method,
 							mode=cv2.RETR_EXTERNAL)
 
-		time.sleep(0.01)
+		time.sleep(0.02)
 
 		ctourObjs = []
 		ctours2 = []
 		i = 0
 		time.sleep(0.1)
 		for c in ctours:
-			if len(c) < 50:
+			if len(c) < 10:
 				continue
 
-			if random.randint(0, 3) == 0:
-				continue
+			#if len(ctourObjs) > 50:
+			#	continue
+
+			#if random.randint(0, 3) == 0:
+			#	continue
 
 			ct = []
 			i = 0
@@ -147,8 +151,8 @@ def opencv_thread():
 					elif ln > 250 and i % 10 != 0:
 						continue
 					"""
-					x = e[0] * -80
-					y = e[1] * -80
+					x = e[0] * -size + 5000
+					y = e[1] * -size
 					ct.append({'x': x, 'y': y})
 
 			cto = Contour(ctour=ct)
@@ -156,6 +160,8 @@ def opencv_thread():
 
 		ps.objects = []
 		ps.objects = ctourObjs
+
+		#print len(ctourObjs)
 
 		time.sleep(0.1)
 
