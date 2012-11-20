@@ -1,10 +1,8 @@
 """
-PointStream -- The main galvo multiple object drawing algorithm.
-			   This code is responsible for drawing multiple objects.
-			   It will need to be improved for efficiency.
-
-	FIXME/NOTE: The documentation / variable names are a bit out of date.
-				"Ball", where it occurs, means "entity object".
+PointStream -- The main galvo multiple object drawing
+			   algorithm. This code is responsible for
+			   drawing multiple objects. It will need to
+			   be improved for efficiency.
 """
 
 SHOW_TRACKING_PATH = False
@@ -30,23 +28,67 @@ class PointStream(object):
 		# XXX: For now, add and remove manually. 
 		self.objects = []
 
+		# Global object manipulation
+		self.scale = 1.0
+		self.rotate = 0.0
+		self.translateX = 0
+		self.translateY = 0
+
 		# Tweakable parameters
 		self.showTracking = SHOW_TRACKING_PATH
 		self.showBlanking = SHOW_BLANKING_PATH
 		self.trackingSamplePts = TRACKING_SAMPLE_PTS
 		self.blankingSamplePts = BLANKING_SAMPLE_PTS
 
+	def transform(self, point):
+		"""
+		Returns global SRT transformations on points.
+		This isn't the most efficient way to do this
+		since Python function calls are expensive, but
+		I need this right now.
+
+		This should be the last routine points pass
+		through before being sent to the galvos.
+
+		Point is a 5-tuple: (x, y, r, g, b)
+		"""
+
+		x = point[0]
+		y = point[1]
+		r = point[2]
+		g = point[3]
+		b = point[4]
+
+		# Global Scale
+		x = x * self.scale
+		y = y * self.scale
+
+		# Global Rotate
+		# TODO
+		xx = x
+		yy = y
+		x = xx*math.cos(self.rotate) - \
+				yy*math.sin(self.rotate)
+		y = yy*math.cos(self.rotate) + \
+				xx*math.sin(self.rotate)
+
+		# Global Translate
+		x += self.translateX
+		y += self.translateY
+
+		return (int(x), int(y), r, g, b)
+
 	def produce(self):
 		"""
 		This infinite loop functions as an infinite point
-		generator. It generates points for objects as well
-		as the "tracking" and "blanking" points that must
-		occur between object draws.
+		generator. It generates points for objects as
+		well as the "tracking" and "blanking" points
+		that must occur between object draws.
 		"""
 		while True:
 			#print "POINT STREAM LOOP BEGIN"
 			curObj = None # XXX SCOPE HERE FOR DEBUG ONLY
-			nextObj = None # XXX SCOPE HERE FOR DEBUG ONLY
+			nextObj = None # XXX SCOPE HERE FOR DEBUG 
 			reverse = False
 
 			try:
@@ -66,6 +108,8 @@ class PointStream(object):
 					b.cacheFirstPt()
 
 				# Objects to destroy at end of loop
+				# TODO: Move this outside of object. 
+				# TODO: Not PointStream's job
 				destroy = []
 
 				"""
@@ -103,12 +147,18 @@ class PointStream(object):
 						continue
 
 					# Prepare to cull object if it is marked destroy
+					# TODO: Move this outside of object. 
+					# TODO: Not PointStream's job
 					if curObj.destroy:
 						destroy.append(i)
 
+					# FIXME: This is done twice for all firstPts
+					# Once here, twice for tracking to nextObj
+					firstPt = self.transform(curObj.firstPt)
+
 					# Blanking (on the way in), if set
 					if curObj.doBlanking:
-						p = curObj.firstPt
+						p = firstPt
 						p = (p[0], p[1], 0, 0, 0)
 						# If we want to debug the blanking 
 						if self.showBlanking:
@@ -119,25 +169,11 @@ class PointStream(object):
 					# Draw the object
 					lastPt = (0, 0, 0, 0, 0)
 					if not curObj.drawn:
-						yield curObj.firstPt # XXX: This was cached upfront!
-						for x in curObj.produce():
-							lastPt = x
-							yield x
-
-					"""
-					# XXX: BULLET SPECIFIC -- Remove?
-					if type(curObj) == Bullet:
-						# Paint last pt for smoothness
-						# XXX: Remove?
-						for x in xrange(BLANK_SAMPLE_PTS):
-							yield curObj.firstPt
-
-						# Paint empty for smoothness
-						# XXX: Remove?
-						for x in xrange(BLANK_SAMPLE_PTS):
-							yield (curObj.lastPt[0], curObj.lastPt[1],
-									0, 0, 0)
-					"""
+						# XXX: This was cached upfront!
+						yield firstPt
+						for pt in curObj.produce():
+							lastPt = self.transform(pt)
+							yield lastPt
 
 					# Blanking (on the way out), if set
 					if curObj.doBlanking:
@@ -150,10 +186,13 @@ class PointStream(object):
 							yield p
 
 					# Now, track to the next object. 
+					# FIXME: inefficient
+					# FIXME: nextObj.firstPt transformed 2x!
+					nextFirstPt = self.transform(nextObj.firstPt)
 					lastX = lastPt[0]
 					lastY = lastPt[1]
-					xDiff = lastPt[0] - nextObj.firstPt[0]
-					yDiff = lastPt[1] - nextObj.firstPt[1]
+					xDiff = lastPt[0] - nextFirstPt[0]
+					yDiff = lastPt[1] - nextFirstPt[1]
 
 					mv = self.trackingSamplePts
 					for i in xrange(mv):
@@ -171,7 +210,8 @@ class PointStream(object):
 					b.drawn = False
 
 				# Items to destroy
-				#print destroy
+				# TODO: Move this outside of object. 
+				# TODO: Not PointStream's job
 				destroy.sort()
 				destroy.reverse()
 				for i in destroy:
