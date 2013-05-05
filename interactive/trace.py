@@ -12,9 +12,11 @@ from lib.stream import PointStream
 from lib.system import *
 from lib.controller import *
 
+BLINK = True # XXX: Cool! Blinking effect.
+
 SIMPLE_TRANSLATION_SPD = 1000
-MAX_X = 25000
-MAX_Y = 25000
+MAX_X = 32500
+MAX_Y = 32500
 MIN_X = - MAX_X
 MIN_Y = - MAX_Y
 
@@ -58,7 +60,25 @@ class Tracer(Shape):
 			yield(pt['x'], pt['y'], self.r, self.g, self.b)
 		self.drawn = True
 
+
+class BlinkTracer(Tracer):
+	def produce(self):
+		i = 0
+		for pt in self.path:
+			i += 1
+			j = i % 3
+			if j == 0:
+				yield(pt['x'], pt['y'], 0,0,0)
+			elif j == 1:
+				yield(pt['x'], pt['y'], self.r, self.g, self.b)
+			else:
+				yield(pt['x'], pt['y'], self.r, self.g, 0)
+
+		self.drawn = True
+
 OBJ = Tracer()
+if BLINK:
+	OBJ = BlinkTracer()
 
 def dac_thread():
 	global OBJ
