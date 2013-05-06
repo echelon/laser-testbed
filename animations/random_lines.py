@@ -26,10 +26,11 @@ import time
 LASER_POWER_DENOM = 1.0 # How much to divide power by
 MAXPT = 32330 # Canvas boundaries 
 
-MAX_X = 32330 / 2
-MIN_X = -32330 / 2
-MAX_Y = 32330 / 2
+MAX_X = 32330  / 2
+MIN_X = -32330  /2
+MAX_Y = 0 #32330  / 2
 MIN_Y = -32330 / 10
+RUN_COLOR_THREAD = False
 
 # Demo params
 PAUSE_SAMPLE_PTS = 7000 # How long to draw point
@@ -45,7 +46,7 @@ CHANGE_WAIT_DENOM = 2 # Alter the wait time
 CHANGE_MAX = 5000 # For eye safety
 CHANGE_MIN = 30 # For galvo safety
 CHANGE_WAIT_MAX = 100
-CHANGE_WAIT_MIN = 1
+CHANGE_WAIT_MIN = 10 # 1
 
 DITHER_INC_MAX = 1000
 DITHER_INC_MIN = 10
@@ -113,10 +114,12 @@ class BlinkPointStreamWithBlanking(BlinkPointStream):
 			lastY = y
 
 class DitherColor(object):
-	def __init__(self, val=CMAX, inc=1):
+	def __init__(self, val=CMAX, inc=1, cmin=CMIN_DEMO, cmax=CMAX):
 		self.val = val
 		self.direc = -1
 		self.inc = inc
+		self.cmin = cmin
+		self.cmax = cmax
 		self.incMin = DITHER_INC_MIN
 		self.incMax = DITHER_INC_MAX
 
@@ -131,14 +134,14 @@ class DitherColor(object):
 
 		if self.direc <= 0:
 			val -= self.inc
-			if val < CMIN_DEMO:
-				val = CMIN_DEMO
+			if val < self.cmin:
+				val = self.cmin
 				self.direc = 1
 				self.randomizeRate()
 		else:
 			val += self.inc
-			if val >= CMAX:
-				val = CMAX-1
+			if val >= self.cmax:
+				val = self.cmax
 				self.direc = -1
 				self.randomizeRate()
 
@@ -203,10 +206,11 @@ def speed_thread():
 			SHOW_TRAVEL_PATH = not SHOW_TRAVEL_PATH
 		"""
 
+"""
 def color_thread():
 	global R, G, B
 
-	rr = DitherColor(inc = random.randint(50, 500))
+	rr = DitherColor(inc = random.randint(50, 500), cmin=CMAX)
 	gg = DitherColor(inc = random.randint(50, 500))
 	bb = DitherColor(inc = random.randint(50, 500))
 
@@ -219,10 +223,54 @@ def color_thread():
 		B = int(bb.getVal())
 
 		time.sleep(0.001)
+"""
+
+def color_thread():
+	"""While the red laser is dead..."""
+	global R, G, B
+
+	r, g, b = (0, 0, 0)
+
+	rn = 0
+	while True:
+		rn = (rn + 1) % 5
+
+		if rn == 0:
+			r = CMAX
+			g = CMAX
+			b = CMAX
+
+		elif rn == 1:
+			r = CMAX
+			g = CMAX
+			b = CMAX/2
+
+		elif rn == 2:
+			r = CMAX
+			g = CMAX
+			b = CMAX/3
+
+		elif rn == 3:
+			r = CMAX
+			g = CMAX
+			b = 0
+
+		elif rn == 4:
+			r = CMAX
+			g = 0
+			b = CMAX
+
+
+		R = r
+		G = g
+		B = b
+
+		time.sleep(0.5)
 
 thread.start_new_thread(dac_thread, ())
 thread.start_new_thread(speed_thread, ())
-thread.start_new_thread(color_thread, ())
+if RUN_COLOR_THREAD:
+	thread.start_new_thread(color_thread, ())
 
 while True:
 	time.sleep(200)
