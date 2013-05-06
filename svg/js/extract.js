@@ -10,21 +10,68 @@ var extract = function()
 	var svg = $svg[0];
 	var paths = svg.getElementsByTagName('path');
 
+	var skip = [];
+
 	// Extract points for all paths.
 	var objects = [];
-	for(var i = 0; i < paths.length; i++) {
-		var p = paths[i];
-		var len = p.getTotalLength();
-		var pts = [];
-		var SAMPLE = 80;
-		for(var j = 0; j < SAMPLE+1; j++) {
-			var z = len * (j/SAMPLE);
-			var pt = p.getPointAtLength(z);
+	console.log("Num Svg Paths: ", paths.length);
+
+	// Get samplePts from a path
+	var getPathPoints = function(path, numSamplePts) {
+		var pts = [],
+			pt = null,
+			len = path.getTotalLength(),
+			i = 0;
+
+		for(i = 0; i < numSamplePts; i++) {
+			pt = path.getPointAtLength((i/numSamplePts)*len);
 			pts.push(pt.x);
 			pts.push(pt.y);
 		}
-		objects.push(pts);
+		return pts;
 	}
+
+	var pts = null; 
+
+
+	/*for(var i = 0; i < paths.length; i++) {
+		//if(i in skip) {
+		//	continue;
+		//}
+		
+		if( i > paths.length / 2 - 1) {
+			break;
+		}
+		//switch(i) {
+		//	case 0:
+		//		SAMPLE = 100;
+		//		break;
+		//	default:
+		//		break;
+		//}
+
+		pts = getPathPoints(paths[i], 500);
+		objects.push(pts);
+	}*/
+
+	var i = 0;
+
+	objects.push(getPathPoints(paths[0], 300));  // outline
+	objects.push(getPathPoints(paths[1], 100)); //face
+	objects.push(getPathPoints(paths[2], 200)); // eyes
+	objects.push(getPathPoints(paths[3], 100));
+	objects.push(getPathPoints(paths[4], 50)); // mouth
+
+
+	/*pts = getPathPoints(paths[0], 4000);
+	objects.push(pts);
+	pts = getPathPoints(paths[1], 40);
+	objects.push(pts);
+	pts = getPathPoints(paths[2], 40);
+	objects.push(pts);
+	pts = getPathPoints(paths[3], 40);
+	objects.push(pts);*/
+
 	return objects;
 }
 
@@ -60,7 +107,12 @@ var main = function()
 
 	$svg.hide();
 	var $body = $('body');
-	$body.html(str);
+	var $text = $('<textarea>').css({
+		width: '100%',
+		height: '900px',
+	});
+	$body.html($text);
+	$('textarea').html(str).focus().select();
 
 	return;
 }
