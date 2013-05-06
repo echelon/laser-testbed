@@ -40,10 +40,10 @@ class Tracer(Shape):
 
 		self.theta = 0
 		self.thetaRate = 0
+		self.direc = True
 
 		self.path = [{'x': 0, 'y': 0}]
-
-		self.direc = True
+		self.blink = False
 
 	def addPoint(self, x, y):
 		pt = {'x': x, 'y': y}
@@ -56,29 +56,27 @@ class Tracer(Shape):
 		return self.path[-1]
 
 	def produce(self):
-		for pt in self.path:
-			yield(pt['x'], pt['y'], self.r, self.g, self.b)
-		self.drawn = True
-
-
-class BlinkTracer(Tracer):
-	def produce(self):
-		i = 0
-		for pt in self.path:
-			i += 1
-			j = i % 3
-			if j == 0:
-				yield(pt['x'], pt['y'], 0,0,0)
-			elif j == 1:
+		if not self.blink:
+			for pt in self.path:
 				yield(pt['x'], pt['y'], self.r, self.g, self.b)
-			else:
-				yield(pt['x'], pt['y'], self.r, self.g, 0)
+		else:
+			i = 0
+			for pt in self.path:
+				i += 1
+				j = i % 3
+				if j == 0:
+					yield(pt['x'], pt['y'], 0,0,0)
+				elif j == 1:
+					yield(pt['x'], pt['y'], self.r, self.g, self.b)
+				else:
+					yield(pt['x'], pt['y'], self.r, self.g, 0)
 
 		self.drawn = True
 
 OBJ = Tracer()
+
 if BLINK:
-	OBJ = BlinkTracer()
+	OBJ.blink = True
 
 def dac_thread():
 	global OBJ
@@ -145,6 +143,21 @@ def controller_thread():
 		# Player rotation
 		t = math.atan2(lVert, lHori)
 		OBJ.theta = t
+
+
+		# Use triggers to toggle blink
+		tOff = [0.0, -1.0]
+		lTrigger = True
+		rTrigger = True
+
+		if controller.getLeftTrigger() in tOff:
+			lTrigger = False
+
+		if controller.getRightTrigger() in tOff:
+			rTrigger = False
+
+		if lTrigger or rTrigger:
+			OBJ.blink = not OBJ.blink
 
 		# Keep this thread from hogging CPU
 		time.sleep(0.02)
