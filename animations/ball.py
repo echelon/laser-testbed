@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from lib import dac
-from lib.common import * 
+from lib.common import *
 
 import math
 import random
@@ -11,8 +11,15 @@ import sys
 import thread
 import time
 
+MAX_X = 20000
+MIN_X = -20000
+MAX_Y = 20000
+MIN_Y = -20000
+
+RADIUS = 2000
+
 # Lower the laser power
-COLOR_DENOM = 3.0
+COLOR_DENOM = 1.0
 
 class PointStream(object):
 	def __init__(self):
@@ -51,7 +58,7 @@ class Ball(PointStream):
 Main Program
 """
 
-ps = Ball(0, 0, 5000)
+ps = Ball(0, 0, RADIUS)
 
 def dac_thread():
 	while True:
@@ -63,10 +70,7 @@ def dac_thread():
 			pass
 
 def move_thread():
-	MAX_X = 20000
-	MIN_X = -20000
-	MAX_Y = 20000
-	MIN_Y = -20000
+	global MAX_X, MAX_Y, MIN_X, MIN_Y
 
 	xDirec = 0
 	yDirec = 0
