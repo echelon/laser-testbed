@@ -8,8 +8,8 @@ import itertools
 import sys
 
 LASER_POWER_DENOM = 1.0
-MAXRAD = 32600
-USERAD = int(MAXRAD/2)
+MAXRAD = 10260
+USERAD = int(MAXRAD/100)
 SAMPLE_PTS = 100 # 30 and below very damaging to galvos
 
 
@@ -43,5 +43,6 @@ while True:
 		d.play_stream(ps)
 	except KeyboardInterrupt:
 		sys.exit()
-	except:
+	except Exception as e:
+		print e
 		continue

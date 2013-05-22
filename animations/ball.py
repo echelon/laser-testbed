@@ -11,14 +11,15 @@ import sys
 import thread
 import time
 
-MAX_X = 20000
-MIN_X = -20000
-MAX_Y = 20000
-MIN_Y = -20000
+MAX_X = 6000
+MIN_X = -22000
+MAX_Y = 10000
+MIN_Y = 5000 #-20000
 
-RADIUS = 2000
+MIN_VEL = 100
+MAX_VEL = 300 # 1000
 
-# Lower the laser power
+RADIUS = 900
 COLOR_DENOM = 1.0
 
 class PointStream(object):
@@ -81,16 +82,16 @@ def move_thread():
 	while True:
 		if ps.x > MAX_X:
 			xDirec = 0
-			xAdd = random.randint(100, 1000)
+			xAdd = random.randint(MIN_VEL, MAX_VEL)
 		elif ps.x < MIN_X:
 			xDirec = 1
-			xAdd = random.randint(100, 1000)
+			xAdd = random.randint(MIN_VEL, MAX_VEL)
 		if ps.y > MAX_Y:
 			yDirec = 0
-			yAdd = random.randint(100, 1000)
+			yAdd = random.randint(MIN_VEL, MAX_VEL)
 		elif ps.y < MIN_Y:
 			yDirec = 1
-			yAdd = random.randint(100, 1000)
+			yAdd = random.randint(MIN_VEL, MAX_VEL)
 
 		if xDirec:
 			ps.x += xAdd

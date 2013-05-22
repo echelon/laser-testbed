@@ -133,7 +133,7 @@ def main():
 	global ps
 
 	# XXX: Insecure!!
-	modname = 'awesome'
+	modname = 'disapprove'
 	if len(sys.argv) > 1:
 		modname = sys.argv[1]
 

@@ -14,9 +14,9 @@ from lib.controller import *
 
 BLINK = True # XXX: Cool! Blinking effect.
 
-SIMPLE_TRANSLATION_SPD = 1000
-MAX_X = 32500
-MAX_Y = 32500
+SIMPLE_TRANSLATION_SPD = 100 # 1000
+MAX_X = 10000 #32500
+MAX_Y = 10000 #32500
 MIN_X = - MAX_X
 MIN_Y = - MAX_Y
 

@@ -9,7 +9,7 @@ import sys
 
 LASER_POWER_DENOM = 1.0
 SAMPLE_PTS = 100 # 30 and below very damaging to galvos
-SIZE = 500
+SIZE = 400
 
 class HeartPointStream(object):
 

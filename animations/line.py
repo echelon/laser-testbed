@@ -88,9 +88,9 @@ def dac_thread():
 
 def move_thread():
 
-	plus = 100
-	topLimit = 30000
-	bottomLimit = 20000
+	plus = 1000
+	topLimit = 0 #30000
+	bottomLimit = -3000 #20000
 
 	OBJ.length = 6000
 	OBJ.y = (topLimit + bottomLimit)/2
