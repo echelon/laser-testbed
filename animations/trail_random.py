@@ -12,13 +12,13 @@ from lib.stream import PointStream
 from lib.system import *
 import datetime
 
-BLINK = False # Blinking effect.
+BLINK = True # Blinking effect.
 
 SIMPLE_TRANSLATION_SPD = 100 # 1000
-MAX_X = 12500
-MAX_Y = 12500
-MIN_X = -10000 #-MAX_X
-MIN_Y = 0 #-MAX_Y
+MAX_X = 10000
+MAX_Y = 20000
+MIN_X = -30000 #-MAX_X
+MIN_Y = 10000 #-MAX_Y
 
 DX_MAG = 150
 DY_MAG = 150
@@ -120,6 +120,7 @@ def dac_thread():
 
 def move_thread():
 	global OBJ
+	global MIN_X, MIN_Y, MAX_X, MAX_Y, DX_MAG, DY_MAG
 
 	OBJ.clearPoints()
 	OBJ.addPoint((MAX_X + MIN_X)/2, (MAX_Y + MIN_Y)/2)
@@ -148,17 +149,17 @@ def move_thread():
 
 		if newX < MIN_X:
 			newX = MIN_X
-			OBJ.velX *= -1
+			OBJ.velX = DX_MAG
 		elif newX > MAX_X:
 			newX = MAX_X
-			OBJ.velX *= -1
+			OBJ.velX = -DX_MAG
 
 		if newY < MIN_Y:
 			newY = MIN_Y
-			OBJ.velY *= -1
-		elif newY > MAX_X:
+			OBJ.velY = DY_MAG
+		elif newY > MAX_Y:
 			newY = MAX_Y
-			OBJ.velY *= -1
+			OBJ.velY = -DY_MAG
 
 		OBJ.addPoint(newX, newY)
 
