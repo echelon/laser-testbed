@@ -32,6 +32,7 @@ scripts = [
 	Play('spin_square.py', 6),
 	Play('flicker.py', 6),
 	Play('trail_random.py', 20),
+	Play('bouncing_shapes.py', 10),
 ]
 
 def main():
