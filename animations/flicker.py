@@ -11,6 +11,7 @@ import itertools
 import sys
 import time
 import thread
+import datetime
 
 from lib import dac
 from lib.common import *
@@ -23,19 +24,16 @@ CONFIGURATION
 
 LASER_POWER_DENOM = 1.0
 
-POINT_NUM_SAMPLE_PTS = 30
+NUM_POINTS = 50
 
-BLINK_FACTOR = 7 # 1 in X chance it will not draw
+X_MIN = -30000
+X_MAX = 30000
+Y_MIN = -30000
+Y_MAX = 30000
 
-NUM_POINTS = 8
-
-X_MIN = -8000
-X_MAX = 8000
-Y_MIN = -8000
-Y_MAX = 8000
-
-TRACKING_SAMPLE_PTS = 7
-BLANKING_SAMPLE_PTS = 12
+POINT_NUM_SAMPLE_PTS = 500
+TRACKING_SAMPLE_PTS = 10
+BLANKING_SAMPLE_PTS = 50
 
 """
 CODE BEGINS HERE
@@ -53,17 +51,20 @@ class Point(Shape):
 		self.theta = 0
 		self.thetaRate = 0
 
-		self.life = 10
+		self.timeStarted = datetime.datetime.now()
+		self.lifetime = datetime.timedelta(
+							seconds=random.uniform(0.0001, 0.115))
 
 	def produce(self):
 		"""
 		Generate the points of the circle.
 		"""
+		"""
 		# Randomly off sometimes
 		if random.randint(0, BLINK_FACTOR) == 0:
 			self.drawn = True
-			self.life -= 1
 			return
+		"""
 
 		r, g, b = (0, 0, 0)
 
@@ -77,9 +78,6 @@ class Point(Shape):
 
 		self.drawn = True
 
-		self.life -= 1
-		if self.life <= 0:
-			self.destroy = True
 
 PS = PointStream()
 PS.trackingSamplePts = TRACKING_SAMPLE_PTS
@@ -106,18 +104,43 @@ def dac_thread():
 def anim_thread():
 	global PS
 	while True:
-		if len(PS.objects) < NUM_POINTS:
+		now = datetime.datetime.now()
+
+		while len(PS.objects) < NUM_POINTS:
 			x = random.randint(X_MIN, X_MAX)
 			y = random.randint(Y_MIN, Y_MAX)
-			life = random.randint(4, 7)
 
-			r = CMAX/3 if random.randint(0, 1) else CMAX
-			g = 0 if random.randint(0, 1) else CMAX
-			b = CMAX/3 if random.randint(0, 1) else CMAX
+			"""
+			r, g, b = (CMAX, 0, 0)
+
+			z = random.randint(0, 2)
+
+			if z == 0:
+				g = CMAX
+				b = CMAX
+			elif z == 1:
+				g = CMAX
+			elif z == 2:
+				b = CMAX
+			"""
+
+			r = CMAX
+			b = CMAX
+			g = CMAX
 
 			pt = Point(x, y, r, g, b)
-			pt.life = life
 			PS.objects.append(pt)
+
+		i = 0
+		while i < len(PS.objects):
+			obj = PS.objects[i]
+			delta = now - obj.timeStarted
+			if delta > obj.lifetime:
+				obj.destroy = True
+				PS.objects.pop(i)
+				#i+=1
+				#break
+			i+=1
 
 		time.sleep(0.01)
 
