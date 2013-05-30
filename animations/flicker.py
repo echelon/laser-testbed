@@ -35,10 +35,6 @@ POINT_NUM_SAMPLE_PTS = 500
 TRACKING_SAMPLE_PTS = 10
 BLANKING_SAMPLE_PTS = 50
 
-"""
-CODE BEGINS HERE
-"""
-
 class Point(Shape):
 
 	def __init__(self, x = 0, y = 0, r = 0, g = 0, b = 0):
@@ -56,16 +52,6 @@ class Point(Shape):
 							seconds=random.uniform(0.0001, 0.115))
 
 	def produce(self):
-		"""
-		Generate the points of the circle.
-		"""
-		"""
-		# Randomly off sometimes
-		if random.randint(0, BLINK_FACTOR) == 0:
-			self.drawn = True
-			return
-		"""
-
 		r, g, b = (0, 0, 0)
 
 		r = 0 if not self.r else int(self.r / LASER_POWER_DENOM)
@@ -82,6 +68,7 @@ class Point(Shape):
 PS = PointStream()
 PS.trackingSamplePts = TRACKING_SAMPLE_PTS
 PS.blankingSamplePts = BLANKING_SAMPLE_PTS
+
 
 def dac_thread():
 	global PS

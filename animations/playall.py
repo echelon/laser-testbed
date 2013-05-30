@@ -29,7 +29,8 @@ scripts = [
 	Play('ball.py', 7),
 	Play('fireworks.py', 15),
 	Play('sine_wave.py', 10),
-	Play('spin_square.py', 5),
+	Play('spin_square.py', 6),
+	Play('flicker.py', 6),
 	Play('trail_random.py', 20),
 ]
 
