@@ -16,7 +16,7 @@ import math
 import random
 import itertools
 import sys
-import thread
+import threading
 import time
 
 class PointStream(object):
@@ -27,6 +27,13 @@ class PointStream(object):
 		# A list of all the objects to draw
 		# XXX: For now, add and remove manually. 
 		self.objects = []
+
+		# A dictionary of objects registered using the new
+		# addObject()/removeObject() API. This API has to 
+		# be compatible with the existing API. 
+		self.dictionary = {}
+		self.dictIncrement = 0
+		self.dictLock = threading.Lock()
 
 		# Global object manipulation
 		self.scale = 1.0
@@ -90,6 +97,8 @@ class PointStream(object):
 			curObj = None # XXX SCOPE HERE FOR DEBUG ONLY
 			nextObj = None # XXX SCOPE HERE FOR DEBUG 
 			reverse = False
+
+			#self.requestLock()
 
 			try:
 				# XXX: Memory copy for opencv app
@@ -225,8 +234,74 @@ class PointStream(object):
 					traceback.print_tb(sys.exc_info()[2])
 					print "---------------------\n"
 
+			finally:
+				#self.releaseLock()
+				pass
+
+	def addObject(self, obj):
+		#self.requestLock()
+
+		key = self.dictIncrement
+		self.dictionary[key] = obj
+		self.dictIncrement += 1
+
+		self.objects = self.dictionary.values()
+
+		#self.releaseLock()
+		return key
+
+	def addObjects(self, objects):
+		#self.requestLock()
+		keys = []
+		for obj in objects:
+			key = self.dictIncrement
+			self.dictionary[key] = obj
+			self.dictIncrement += 1
+			keys.append(key)
+
+		self.objects = self.dictionary.values()
+		#self.releaseLock()
+		return keys
+
+	def removeObject(self, key):
+		if key not in self.dictionary:
+			print "Key DNE in Stream! Key='%s'" % str(key)
+			return
+
+		#self.requestLock()
+
+		obj = self.dictionary.pop(key)
+		self.objects = self.dictionary.values()
+
+		#self.releaseLock()
+
+		return obj
+
+	def removeObjects(self, keys):
+		#self.requestLock()
+		objects = []
+		for key in keys:
+			if key not in self.dictionary:
+				print "Key DNE in Stream! Key='%s'" % str(key)
+				continue
+			obj = self.dictionary.pop(key)
+			objects.append(obj)
+
+		self.objects = self.dictionary.values()
+		#self.releaseLock()
+
 	def read(self, n):
 		d = [self.stream.next() for i in xrange(n)]
 		return d
+
+	def requestLock(self):
+		self.dictLock.acquire()
+		#while self.dictLock:
+		#	continue
+		#self.dictLock = True
+
+	def releaseLock(self):
+		self.dictLock.release()
+		#self.dictLock = False
 
 
