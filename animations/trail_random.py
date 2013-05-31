@@ -14,14 +14,13 @@ import datetime
 
 BLINK = True # Blinking effect.
 
-SIMPLE_TRANSLATION_SPD = 100 # 1000
-MAX_X = 10000
-MAX_Y = 20000
-MIN_X = -30000 #-MAX_X
-MIN_Y = 10000 #-MAX_Y
+MAX_X = 32000
+MAX_Y = 32000
+MIN_X = -MAX_X
+MIN_Y = -MAX_Y
 
-DX_MAG = 150
-DY_MAG = 150
+DX_MAG = 250
+DY_MAG = 250
 
 MAX_LENGTH = 450
 
@@ -88,6 +87,8 @@ class Tracer(Shape):
 		self.drawn = True
 
 OBJ = Tracer()
+OBJ.clearPoints()
+OBJ.addPoint((MAX_X + MIN_X)/2, (MAX_Y + MIN_Y)/2)
 
 if BLINK:
 	OBJ.blink = True
@@ -117,13 +118,9 @@ def dac_thread():
 			traceback.print_tb(sys.exc_info()[2])
 			print "\n"
 
-
 def move_thread():
 	global OBJ
 	global MIN_X, MIN_Y, MAX_X, MAX_Y, DX_MAG, DY_MAG
-
-	OBJ.clearPoints()
-	OBJ.addPoint((MAX_X + MIN_X)/2, (MAX_Y + MIN_Y)/2)
 
 	while True:
 		lastPt = OBJ.lastPoint()
@@ -164,7 +161,7 @@ def move_thread():
 		OBJ.addPoint(newX, newY)
 
 		# Keep this thread from hogging CPU
-		time.sleep(0.02)
+		time.sleep(0.005)
 
 
 thread.start_new_thread(dac_thread, ())
