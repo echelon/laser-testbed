@@ -9,20 +9,22 @@ Started May 30, 2013
 # Never use in serious environment
 # Executes strings as processes!
 
+import os
 import sys
 import time
 import subprocess
 
 class Play(object):
 	def __init__(self, fn, seconds):
+		pwd = os.path.dirname(os.path.realpath(__file__))
 		self.filename = fn
+		self.fullpath = os.path.join(pwd, fn)
 		self.wait = seconds
 		self.proc = None
 	def execute(self):
-		cmd = './%s' % self.filename
+		cmd = self.fullpath
 		self.proc = subprocess.Popen(cmd, shell=False)
 	def close(self):
-		#self.proc.kill()
 		self.proc.terminate()
 
 scripts = [
@@ -32,7 +34,7 @@ scripts = [
 	Play('spin_square.py', 6),
 	Play('flicker.py', 6),
 	Play('trail_random.py', 20),
-	Play('bouncing_shapes.py', 10),
+	#Play('bouncing_shapes.py', 10),
 ]
 
 def main():
