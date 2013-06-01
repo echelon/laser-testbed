@@ -26,9 +26,9 @@ CONFIGURATION
 LASER_POWER_DENOM = 1.0
 
 # Contour scaling
-SCALE = -80
+SCALE = -80 #-20
 X_OFF = 0
-Y_OFF = 0
+Y_OFF = 10000
 
 """
 Globals
@@ -43,6 +43,7 @@ camera = cv2.VideoCapture(0)
 cv2.namedWindow('window')
 cv2.createTrackbar('threshLo', 'window', 40, 130, lambda x: None)
 cv2.createTrackbar('threshHi', 'window', 60, 130, lambda x: None)
+cv2.createTrackbar('removeUnder', 'window', 10, 50, lambda x: None)
 
 def show_image(image, window='window'):
 	cv2.imshow(window, image)
@@ -96,7 +97,7 @@ def camera_thread():
 
 	while True:
 		rval, frame = camera.read()
-		time.sleep(0.1)
+		time.sleep(2.1)
 
 def opencv_thread():
 	global obj
@@ -129,6 +130,7 @@ def opencv_thread():
 
 		threshLo = cv2.getTrackbarPos('threshLo', 'window')
 		threshHi = cv2.getTrackbarPos('threshHi', 'window')
+		removeUnder = cv2.getTrackbarPos('removeUnder', 'window')
 		canny = cv2.Canny(smooth, threshLo, threshHi)
 
 		time.sleep(0.02)
@@ -137,67 +139,57 @@ def opencv_thread():
 
 		time.sleep(0.02)
 
-		method = cv2.CHAIN_APPROX_NONE
-		#method = cv2.CHAIN_APPROX_SIMPLE
+		#method = cv2.CHAIN_APPROX_NONE
+		method = cv2.CHAIN_APPROX_SIMPLE
 		#mode = cv2.RETR_EXTERNAL
+		#mode = cv2.RETR_TREE
 		mode = cv2.RETR_LIST
 		ctours, hier = cv2.findContours(im, method=method, mode=mode)
 
-		opencv_contours = []
-		opencv_contours = ctours
-
-		contourImg = gray.copy()
+		outCtours = []
+		contourImg = gray.copy() # TODO: Make Global, create just once
 		contourImg.fill(0)
 		for i in range(len(ctours)):
+			if len(ctours[i]) < removeUnder:
+				continue
 			cv2.drawContours(contourImg, ctours, i, (255, 0, 0))
+			outCtours.append(ctours[i])
+
+		opencv_contours = []
+		opencv_contours = outCtours
 
 		show_image(contourImg)
 
-		time.sleep(0.1)
+		time.sleep(2.1)
 
 def copy_struct_thread():
 	global ps
 	global opencv_contours
 
-	size = 50 # 80
-
 	while True:
 		#print "Num ctours: %d " % len(opencv_contours)
 		objects = []
 		for ctour in opencv_contours:
-			if len(ctour) < 10:
-				continue
-
-			ct = []
+			points = []
+			ln = len(ctour)
 			i = 0
-			for d in ctour:
-				ln = len(d)
-				for e in d:
-					i += 1
-					# XXX: Use this to control flicker
-					# by reducing the number of points
-					"""
-					if ln < 250 and i % 2 != 0:
-						continue
-					"""
-					"""
-					elif ln > 250 and i % 10 != 0:
-						continue
-					"""
-					x = e[0] * SCALE + X_OFF
-					y = e[1] * SCALE + Y_OFF
-					ct.append({'x': x, 'y': y})
+			for x in ctour:
+				pt = x[0]
+				# XXX: Use this to control flicker
+				# by reducing the number of points
+				i += 1
+				if i % 2:
+					continue
+				x = pt[0] * SCALE + X_OFF
+				y = pt[1] * SCALE + Y_OFF
+				points.append({'x': x, 'y': y})
 
-			cto = Contour(ctour=ct)
-			objects.append(cto)
+			obj = Contour(ctour=points)
+			objects.append(obj)
 
-		#ps.objects = []
 		ps.setNextFrame(objects)
 
-		#print "Contour objects created: %d" % len(objects)
-		#print len(ctourObjs)
-
-		time.sleep(1.0)
+		time.sleep(2.5)
 
 def dac_thread():
 	global obj
