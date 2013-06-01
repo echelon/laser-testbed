@@ -13,6 +13,7 @@ import time
 import random
 import thread
 import itertools
+from multiprocessing import Process, Queue
 
 from lib import dac
 from lib.common import *
@@ -38,6 +39,7 @@ objs = []
 obj = None
 ps = None
 frame = None # OpenCV camera
+queue = Queue() # Multiprocess queue
 
 camera = cv2.VideoCapture(0)
 cv2.namedWindow('window')
@@ -50,10 +52,6 @@ def show_image(image, window='window'):
 	key = cv2.waitKey(20)
 	if key == 27: # exit on ESC
 		sys.exit()
-
-# Contours created by OpenCV that need to be turned 
-# into laser-related structures
-opencv_contours = []
 
 """
 Animation code / logic
@@ -97,14 +95,14 @@ def camera_thread():
 
 	while True:
 		rval, frame = camera.read()
-		time.sleep(2.1)
+		time.sleep(0.1)
 
 def opencv_thread():
 	global obj
 	global ps
 	global frame
 	global camera
-	global opencv_contours
+	global queue
 
 	width = 300 # 400
 	height = 300 # 400
@@ -114,7 +112,6 @@ def opencv_thread():
 	y2 = y1 + height
 
 	while True:
-
 		cropped = frame[y1:y2, x1:x2]
 
 		time.sleep(0.02)
@@ -155,21 +152,19 @@ def opencv_thread():
 			cv2.drawContours(contourImg, ctours, i, (255, 0, 0))
 			outCtours.append(ctours[i])
 
-		opencv_contours = []
-		opencv_contours = outCtours
-
+		queue.put(outCtours)
 		show_image(contourImg)
 
-		time.sleep(2.1)
+		time.sleep(0.1)
 
 def copy_struct_thread():
 	global ps
-	global opencv_contours
+	global queue
 
 	while True:
-		#print "Num ctours: %d " % len(opencv_contours)
 		objects = []
-		for ctour in opencv_contours:
+		cv_contours = queue.get()
+		for ctour in cv_contours:
 			points = []
 			ln = len(ctour)
 			i = 0
@@ -188,11 +183,9 @@ def copy_struct_thread():
 			objects.append(obj)
 
 		ps.setNextFrame(objects)
-
-		time.sleep(2.5)
+		time.sleep(0.1)
 
 def dac_thread():
-	global obj
 	global ps
 
 	d = dac.DAC(dac.find_first_dac())
@@ -209,12 +202,7 @@ def dac_thread():
 			d.last_status.playback_state = 0
 			d.last_status.fullness = 1799
 
-#
-# Start Threads
-#
-
-def main():
-	global obj
+def dac_process():
 	global ps
 
 	ps = PointStream()
@@ -223,14 +211,21 @@ def main():
 	ps.blankingSamplePts = 7
 	ps.trackingSamplePts = 7
 
-
 	thread.start_new_thread(dac_thread, ())
+	time.sleep(0.50)
+	thread.start_new_thread(copy_struct_thread, ())
+
+	while True:
+		time.sleep(100000)
+
+def main():
+	p = Process(target=dac_process)
+	p.start()
+
 	time.sleep(0.50)
 	thread.start_new_thread(camera_thread, ())
 	time.sleep(0.50)
 	thread.start_new_thread(opencv_thread, ())
-	time.sleep(0.50)
-	thread.start_new_thread(copy_struct_thread, ())
 
 	while True:
 		time.sleep(100000)
