@@ -1,18 +1,23 @@
 #!/usr/bin/env python
 
+"""
+Lase with OpenCV Contours.
+This code was overhauled beginning May 31, 2013.
+"""
+
 import os
-import math
-import random
 import cv2
-import itertools
 import sys
+import math
 import time
+import random
 import thread
+import itertools
 
 from lib import dac
 from lib.common import *
-from lib.stream import PointStream
 from lib.shape import Shape
+from lib.stream import PointStream
 
 """
 CONFIGURATION
@@ -28,6 +33,21 @@ objs = []
 obj = None
 ps = None
 frame = None # OpenCV camera
+
+camera = cv2.VideoCapture(0)
+cv2.namedWindow('window')
+cv2.createTrackbar('threshLo', 'window', 40, 130, lambda x: None)
+cv2.createTrackbar('threshHi', 'window', 60, 130, lambda x: None)
+
+def show_image(image, window='window'):
+	cv2.imshow(window, image)
+	key = cv2.waitKey(20)
+	if key == 27: # exit on ESC
+		sys.exit()
+
+# Contours created by OpenCV that need to be turned 
+# into laser-related structures
+opencv_contours = []
 
 """
 Animation code / logic
@@ -51,9 +71,6 @@ class Contour(Shape):
 			self.ctour = ctour
 
 	def produce(self):
-		"""
-		Generate the points of the circle.
-		"""
 		for c in self.ctour:
 			yield (c['x'], c['y'], CMAX, CMAX, CMAX)
 
@@ -70,17 +87,18 @@ def camera_thread():
 	but it must.
 	"""
 	global frame
-
-	vc = cv2.VideoCapture(0)
+	global camera
 
 	while True:
-		rval, frame = vc.read()
-		time.sleep(0.05)
+		rval, frame = camera.read()
+		time.sleep(0.1)
 
 def opencv_thread():
 	global obj
 	global ps
 	global frame
+	global camera
+	global opencv_contours
 
 	width = 300 # 400
 	height = 300 # 400
@@ -101,52 +119,63 @@ def opencv_thread():
 		time.sleep(0.02)
 
 		kern = 9
-		smooth = gray
 		smooth = cv2.GaussianBlur(gray, (kern, kern), 0)
 
 		time.sleep(0.02)
 
-		thresh1 = 100.0 # HI -- 50 is great!
-		thresh2 = thresh1 #- 15.0 # LOW -- 10 is good.
-		canny = cv2.Canny(smooth, thresh1, thresh2)
+		threshLo = cv2.getTrackbarPos('threshLo', 'window')
+		threshHi = cv2.getTrackbarPos('threshHi', 'window')
+		canny = cv2.Canny(smooth, threshLo, threshHi)
 
 		time.sleep(0.02)
 
 		im = canny.copy()
 
 		time.sleep(0.02)
+
 		method = cv2.CHAIN_APPROX_NONE
 		#method = cv2.CHAIN_APPROX_SIMPLE
-		ctours, hier = cv2.findContours(im,
-							method=method,
-							mode=cv2.RETR_EXTERNAL)
+		#mode = cv2.RETR_EXTERNAL
+		mode = cv2.RETR_LIST
+		ctours, hier = cv2.findContours(im, method=method, mode=mode)
 
-		time.sleep(0.02)
+		opencv_contours = []
+		opencv_contours = ctours
 
-		ctourObjs = []
-		ctours2 = []
-		i = 0
+		contourImg = gray.copy()
+		contourImg.fill(0)
+		for i in range(len(ctours)):
+			cv2.drawContours(contourImg, ctours, i, (255, 0, 0))
+
+		show_image(contourImg)
+
 		time.sleep(0.1)
-		for c in ctours:
-			if len(c) < 10:
+
+def copy_struct_thread():
+	global ps
+	global opencv_contours
+
+	size = 50 # 80
+
+	while True:
+		#print "Num ctours: %d " % len(opencv_contours)
+		objects = []
+		for ctour in opencv_contours:
+			if len(ctour) < 10:
 				continue
-
-			#if len(ctourObjs) > 50:
-			#	continue
-
-			#if random.randint(0, 3) == 0:
-			#	continue
 
 			ct = []
 			i = 0
-			for d in c:
+			for d in ctour:
 				ln = len(d)
 				for e in d:
 					i += 1
 					# XXX: Use this to control flicker
 					# by reducing the number of points
+					"""
 					if ln < 250 and i % 2 != 0:
 						continue
+					"""
 					"""
 					elif ln > 250 and i % 10 != 0:
 						continue
@@ -156,14 +185,15 @@ def opencv_thread():
 					ct.append({'x': x, 'y': y})
 
 			cto = Contour(ctour=ct)
-			ctourObjs.append(cto)
+			objects.append(cto)
 
 		ps.objects = []
-		ps.objects = ctourObjs
+		ps.objects = objects
 
+		#print "Contour objects created: %d" % len(objects)
 		#print len(ctourObjs)
 
-		time.sleep(0.1)
+		time.sleep(1.0)
 
 def dac_thread():
 	global obj
@@ -197,11 +227,14 @@ def main():
 	ps.blankingSamplePts = 7
 	ps.trackingSamplePts = 7
 
+
 	thread.start_new_thread(dac_thread, ())
 	time.sleep(0.50)
 	thread.start_new_thread(camera_thread, ())
 	time.sleep(0.50)
 	thread.start_new_thread(opencv_thread, ())
+	time.sleep(0.50)
+	thread.start_new_thread(copy_struct_thread, ())
 
 	while True:
 		time.sleep(100000)

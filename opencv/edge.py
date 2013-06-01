@@ -1,16 +1,38 @@
 #!/usr/bin/env python
 
+"""
+This is not easy!
+Try these methods:
+	* Segmentation
+	* Background detection
+	* Blob detection
+"""
+
 import math
+import sys
 import cv2
 
-cv2.namedWindow('capture')
+def noop(*arg):
+	pass
+
+#cv2.namedWindow('capture')
 cv2.namedWindow('cropped')
+
 cv2.namedWindow('smooth')
-#cv2.namedWindow('binary')
+cv2.createTrackbar('kernel', 'smooth', 0, 21, noop)
+
 cv2.namedWindow('canny')
+cv2.createTrackbar('threshLo', 'canny', 0, 130, noop)
+cv2.createTrackbar('threshHi', 'canny', 0, 130, noop)
+
+cv2.namedWindow('morph')
+cv2.namedWindow('morph2')
+cv2.namedWindow('thresh')
 #cv2.namedWindow('erode')
 #cv2.namedWindow('dilate')
 cv2.namedWindow('out')
+
+
 
 vc = cv2.VideoCapture(0)
 
@@ -19,8 +41,6 @@ vc = cv2.VideoCapture(0)
 #	rval, frame = vc.read()
 #else:
 #	rval = False
-
-rval = True
 
 while False:
 
@@ -51,6 +71,8 @@ while False:
 	#print "========="
 	"""
 
+rval = True
+
 while rval:
 	rval, frame = vc.read()
 
@@ -65,37 +87,77 @@ while rval:
 
 	gray = cv2.cvtColor(cropped, cv2.COLOR_RGB2GRAY)
 
-
-
-	kern = 9
 	smooth = gray
+
+	kern = 3
+	k = cv2.getTrackbarPos('kernel', 'smooth')
+	if k % 2 != 1:
+		k += 1
+	if k > 3 and k % 2 == 1:
+		kern = k
+
 	smooth = cv2.GaussianBlur(gray, (kern, kern), 0)
-	#smooth = cv2.GaussianBlur(smooth, (15,15), 0)
 
 
-	thresh1 = 40.0 # HI -- 50 is great!
-	thresh2 = thresh1 #- 15.0 # LOW -- 10 is good.
-	canny = cv2.Canny(smooth, thresh1, thresh2)
+	"""
+	ret, thresh = cv2.threshold(smooth, 100, 255, cv2.THRESH_BINARY)
+	"""
+	thresh = cv2.adaptiveThreshold(
+			src=smooth,
+			maxValue=255,
+			adaptiveMethod=cv2.ADAPTIVE_THRESH_MEAN_C,
+			thresholdType=cv2.THRESH_BINARY,
+			blockSize=15,
+			C=3)
+
+	threshLo = 40.0 # HI -- 50 is great!
+	threshHi = 30.0 #- 15.0 # LOW -- 10 is good.
+
+	threshLo = cv2.getTrackbarPos('threshLo', 'canny')
+	threshHi = cv2.getTrackbarPos('threshHi', 'canny')
+	canny = cv2.Canny(smooth, threshLo, threshHi)
+
+	def kernel(size, shape):
+		size = (size, size)
+		if shape.lower() in ['r', 'rect']:
+			shape = cv2.MORPH_RECT
+		elif shape.lower() in ['c', 'cross']:
+			shape = cv2.MORPH_CROSS
+		elif shape.lower() in ['e', 'ellipse']:
+			shape = cv2.MORPH_ELLIPSE
+		return cv2.getStructuringElement(shape, size)
+
+	morph = cv2.dilate(canny, kernel=kernel(3, 'e'))
+	morph2 = cv2.dilate(canny, kernel=kernel(3, 'c'))
 
 	im = canny.copy()
 
 	mode = cv2.RETR_EXTERNAL
 	#mode = cv2.RETR_LIST
 	method = cv2.CHAIN_APPROX_NONE
+	#method = cv2.CHAIN_APPROX_TC89_KCOS
+	#method = cv2.CHAIN_APPROX_TC89_L1
 	#method = cv2.CHAIN_APPROX_SIMPLE
-	ctours, hier = cv2.findContours(im,
-						method=method,
-						mode=mode)
+
+	ctours, hier = cv2.findContours(im, method=method, mode=mode)
+
+	print "# Contours = %d" % len(ctours)
 
 	out = cropped.copy()
+	out.fill(0)
+	#out = cv2.createImage((width, height), 8, 3)
 	for i in range(len(ctours)):
-		if len(ctours[i]) < 5:
+		if len(ctours[i]) < 20:
 			continue
 		cv2.drawContours(out, ctours, i, (255, 0, 0))
 
-	cv2.imshow('capture', frame)
+
+	#cv2.imshow('capture', frame)
 	cv2.imshow('cropped', cropped)
 	cv2.imshow('smooth', smooth)
+	cv2.imshow('thresh', thresh)
+	cv2.imshow('morph', morph)
+	cv2.imshow('morph2', morph2)
 	cv2.imshow('canny', canny)
 	#cv2.imshow('dilate', dilate)
 	cv2.imshow('out', out)
