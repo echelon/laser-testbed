@@ -1,11 +1,7 @@
 #!/usr/bin/env python
 
 """
-This is not easy!
-Try these methods:
-	* Segmentation
-	* Background detection
-	* Blob detection
+Not an exact science. Lots of trial and error.
 """
 
 import math

@@ -35,6 +35,9 @@ class PointStream(object):
 		self.dictIncrement = 0
 		self.dictLock = threading.Lock()
 
+		# Frame buffering
+		self.nextFrame = []
+
 		# Global object manipulation
 		self.scale = 1.0
 		self.rotate = 0.0
@@ -226,6 +229,8 @@ class PointStream(object):
 				for i in destroy:
 					objects.pop(i)
 
+				self.advanceFrame()
+
 			except Exception as e:
 				import sys, traceback
 				while True:
@@ -237,6 +242,21 @@ class PointStream(object):
 			finally:
 				#self.releaseLock()
 				pass
+
+	def setNextFrame(self, objects):
+		"""
+		Sets the next frame of objects to be displayed.
+		Once the current frame finishes, the next frame will be
+		set (and held until a new one comes).
+		"""
+		self.nextFrame = objects
+
+	def advanceFrame(self):
+		if not self.nextFrame:
+			return
+
+		self.objects = []
+		self.objects = self.nextFrame[:]
 
 	def addObject(self, obj):
 		#self.requestLock()

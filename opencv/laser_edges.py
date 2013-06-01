@@ -25,6 +25,11 @@ CONFIGURATION
 
 LASER_POWER_DENOM = 1.0
 
+# Contour scaling
+SCALE = -80
+X_OFF = 0
+Y_OFF = 0
+
 """
 Globals
 """
@@ -107,7 +112,6 @@ def opencv_thread():
 	x2 = x1 + width
 	y2 = y1 + height
 
-	size = 50 # 80
 	while True:
 
 		cropped = frame[y1:y2, x1:x2]
@@ -180,15 +184,15 @@ def copy_struct_thread():
 					elif ln > 250 and i % 10 != 0:
 						continue
 					"""
-					x = e[0] * -size + 5000
-					y = e[1] * -size
+					x = e[0] * SCALE + X_OFF
+					y = e[1] * SCALE + Y_OFF
 					ct.append({'x': x, 'y': y})
 
 			cto = Contour(ctour=ct)
 			objects.append(cto)
 
-		ps.objects = []
-		ps.objects = objects
+		#ps.objects = []
+		ps.setNextFrame(objects)
 
 		#print "Contour objects created: %d" % len(objects)
 		#print len(ctourObjs)
