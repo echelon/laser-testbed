@@ -3,6 +3,13 @@
 """
 Lase with OpenCV Contours.
 This code was overhauled beginning May 31, 2013.
+
+To anyone unfamiliar with Python, 'multiprocessing' and 'threading'
+are two entirely different concepts in the language. Due to the
+Global Interpreter Lock, 'threading' isn't actually real threading.
+The 'multiprocessing' module was created to bypass the GIL. In this
+script, I utilize both threading and multiprocessing. You'll need to
+read the Python docs to see how this works.
 """
 
 import os
@@ -27,19 +34,18 @@ CONFIGURATION
 LASER_POWER_DENOM = 1.0
 
 # Contour scaling
-SCALE = -80 #-20
+SCALE = -100
 X_OFF = 0
-Y_OFF = 10000
+Y_OFF = 0
 
 """
 Globals
 """
 
-objs = []
-obj = None
 ps = None
 frame = None # OpenCV camera
-queue = Queue() # Multiprocess queue
+queue = Queue(maxsize=1) # Multiprocess queue
+#queue = Queue()
 
 camera = cv2.VideoCapture(0)
 cv2.namedWindow('window')
@@ -112,29 +118,33 @@ def opencv_thread():
 	y2 = y1 + height
 
 	while True:
+		rval, frame = camera.read()
+
+		#time.sleep(0.01)
+
 		cropped = frame[y1:y2, x1:x2]
 
-		time.sleep(0.02)
+		#time.sleep(0.02)
 
 		gray = cv2.cvtColor(cropped, cv2.COLOR_RGB2GRAY)
 
-		time.sleep(0.02)
+		#time.sleep(0.02)
 
 		kern = 9
 		smooth = cv2.GaussianBlur(gray, (kern, kern), 0)
 
-		time.sleep(0.02)
+		#time.sleep(0.02)
 
 		threshLo = cv2.getTrackbarPos('threshLo', 'window')
 		threshHi = cv2.getTrackbarPos('threshHi', 'window')
 		removeUnder = cv2.getTrackbarPos('removeUnder', 'window')
 		canny = cv2.Canny(smooth, threshLo, threshHi)
 
-		time.sleep(0.02)
+		#time.sleep(0.02)
 
 		im = canny.copy()
 
-		time.sleep(0.02)
+		#time.sleep(0.02)
 
 		#method = cv2.CHAIN_APPROX_NONE
 		method = cv2.CHAIN_APPROX_SIMPLE
@@ -152,10 +162,14 @@ def opencv_thread():
 			cv2.drawContours(contourImg, ctours, i, (255, 0, 0))
 			outCtours.append(ctours[i])
 
-		queue.put(outCtours)
+		try:
+			queue.put(outCtours, block=False)
+		except:
+			pass
+
 		show_image(contourImg)
 
-		time.sleep(0.1)
+		#time.sleep(0.1)
 
 def copy_struct_thread():
 	global ps
@@ -163,7 +177,12 @@ def copy_struct_thread():
 
 	while True:
 		objects = []
+
 		cv_contours = queue.get()
+		#while not queue.empty():
+		#	cv_contours = queue.get()
+
+		j = 0
 		for ctour in cv_contours:
 			points = []
 			ln = len(ctour)
@@ -180,10 +199,13 @@ def copy_struct_thread():
 				points.append({'x': x, 'y': y})
 
 			obj = Contour(ctour=points)
+			obj.drawEveryHeuristic = True
+			obj.drawEvery = 2
+			obj.drawEveryCount = j % obj.drawEvery
 			objects.append(obj)
 
 		ps.setNextFrame(objects)
-		time.sleep(0.1)
+		time.sleep(0.2)
 
 def dac_thread():
 	global ps
@@ -193,11 +215,10 @@ def dac_thread():
 	while True:
 		try:
 			d.play_stream(ps)
-
 		except KeyboardInterrupt:
 			sys.exit()
-
 		except Exception as e:
+			print 'exception', e
 			# Reset playback so galvos keep spinning
 			d.last_status.playback_state = 0
 			d.last_status.fullness = 1799
@@ -223,12 +244,18 @@ def main():
 	p.start()
 
 	time.sleep(0.50)
-	thread.start_new_thread(camera_thread, ())
-	time.sleep(0.50)
+	#thread.start_new_thread(camera_thread, ())
+	#time.sleep(0.50)
 	thread.start_new_thread(opencv_thread, ())
 
-	while True:
-		time.sleep(100000)
+	try:
+		while True:
+			time.sleep(100000)
+	except KeyboardInterrupt:
+		print "Keyboard Interrupt"
+		p.terminate()
+		cv2.destroyAllWindows()
+		sys.exit()
 
 if __name__ == '__main__':
 	main()
