@@ -11,15 +11,16 @@ import sys
 import thread
 import time
 
-MAX_X = 6000
-MIN_X = -22000
-MAX_Y = 10000
-MIN_Y = 5000 #-20000
+RADIUS = 5000
+
+MIN_X = -30000 + RADIUS
+MAX_X = 30000 - RADIUS
+MIN_Y = -30000 + RADIUS
+MAX_Y = 30000 - RADIUS
 
 MIN_VEL = 100
-MAX_VEL = 300 # 1000
+MAX_VEL = 1000
 
-RADIUS = 900
 COLOR_DENOM = 1.0
 
 class PointStream(object):
