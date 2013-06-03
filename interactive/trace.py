@@ -14,13 +14,13 @@ from lib.controller import *
 
 BLINK = True # XXX: Cool! Blinking effect.
 
-SIMPLE_TRANSLATION_SPD = 100 # 1000
-MAX_X = 10000 #32500
-MAX_Y = 10000 #32500
+SIMPLE_TRANSLATION_SPD = 1000 # 1000
+MAX_X = 32500
+MAX_Y = 32500
 MIN_X = - MAX_X
 MIN_Y = - MAX_Y
 
-MAX_LENGTH = 150
+MAX_LENGTH = 450
 
 # TODO: Shape needs to be standardized to support
 # scaling, rotation, etc. out of the box in the same
@@ -84,8 +84,10 @@ def dac_thread():
 	ps = PointStream()
 	ps.objects.append(OBJ)
 
-	ps.showBlankingPath = True
-	ps.showTrackingPath = True
+	ps.showBlankingPath = False
+	ps.showTrackingPath = False
+	ps.blankingSamplePts = 10
+	ps.trackingSamplePts = 10
 
 	while True:
 		try:
