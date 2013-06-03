@@ -7,8 +7,8 @@ PointStream -- The main galvo multiple object drawing
 
 SHOW_TRACKING_PATH = False
 SHOW_BLANKING_PATH = False
-TRACKING_SAMPLE_PTS = 10
-BLANKING_SAMPLE_PTS = 10
+TRACKING_SAMPLE_PTS = 1
+BLANKING_SAMPLE_PTS = 1
 
 _CMAX = 65535 # MAX COLOR VALUE
 
@@ -158,6 +158,16 @@ class PointStream(object):
 					if curObj.skipDraw:
 						continue
 
+					# "DrawEvery" heuristic
+					"""
+					if hasattr(curObj, 'drawEveryHeuristic') and \
+						curObj.drawEveryHeuristic:
+							h = curObj
+							h.drawEveryCount += 1
+							if h.drawEveryCount % h.drawEvery != 0:
+								continue
+					"""
+
 					# Prepare to cull object if it is marked destroy
 					# TODO: Move this outside of object. 
 					# TODO: Not PointStream's job
@@ -254,7 +264,6 @@ class PointStream(object):
 	def advanceFrame(self):
 		if not self.nextFrame:
 			return
-
 		self.objects = []
 		self.objects = self.nextFrame[:]
 
