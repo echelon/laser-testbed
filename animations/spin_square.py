@@ -7,6 +7,7 @@ Integrates some code from my GameJam project, Laser Asteroids.
 
 import math
 import itertools
+import random
 import sys
 import time
 import thread
@@ -20,8 +21,6 @@ from lib.shape import Shape
 CONFIGURATION
 """
 
-LASER_POWER_DENOM = 1.0
-
 SQUARE_X = 0
 SQUARE_Y = 0
 
@@ -32,24 +31,23 @@ SQUARE_B = CMAX
 SQUARE_EDGE_SAMPLE_PTS = 50
 SQUARE_VERTEX_SAMPLE_PTS = 10
 
-"""
-# School parking deck to J-building params
-SQUARE_RADIUS_MIN = 5
-SQUARE_RADIUS_MAX = 50
-SQUARE_RADIUS_INC = 10
-PAN_X_INC_MAG = 400
-PAN_X_MAX = 2500
-PAN_X_MIN = -2500
-"""
-
-SQUARE_RADIUS_MIN = 3000
-SQUARE_RADIUS_MAX = 5200
-SQUARE_RADIUS_INC = 250
+SQUARE_SIZE_MIN = 2000
+SQUARE_SIZE_MAX = 5200
+SQUARE_SIZE_INC = 50
 PAN_X_INC_MAG = 1500
-PAN_X_MAX = 25000
-PAN_X_MIN = -25000
 
-SPIN_THETA_INC = math.pi / 6
+MIN_X = -30000 + SQUARE_SIZE_MAX
+MAX_X = 30000 - SQUARE_SIZE_MAX
+MIN_Y = -30000 + SQUARE_SIZE_MAX
+MAX_Y = 30000 - SQUARE_SIZE_MAX
+
+SPIN_THETA_MAX = math.pi / 10
+SPIN_THETA_MIN = math.pi / 30
+
+MIN_VEL = 100
+MAX_VEL = 1000
+
+LASER_POWER_DENOM = 1.0
 
 """
 CODE BEGINS HERE
@@ -160,12 +158,12 @@ def dac_thread():
 	global SQUARE
 	global SQUARE_X, SQUARE_Y
 	global SQUARE_R, SQUARE_G, SQUARE_B
-	global SQUARE_RADIUS_MIN
+	global SQUARE_SIZE_MIN
 
 	ps = PointStream()
 
 	SQUARE = Square(0, 0, SQUARE_R, SQUARE_G, SQUARE_B,
-			radius = SQUARE_RADIUS_MIN)
+			radius = SQUARE_SIZE_MIN)
 
 	SQUARE.x = SQUARE_X
 	SQUARE.y = SQUARE_Y
@@ -188,53 +186,67 @@ def dac_thread():
 			traceback.print_tb(sys.exc_info()[2])
 			print "\n"
 
-def spin_thread():
+
+def anim_thread():
 	global SQUARE
-	global SQUARE_X, SQUARE_Y
-	global SQUARE_RADIUS_MIN, SQUARE_RADIUS_MAX
-	global SQUARE_RADIUS_INC
-	global SPIN_THETA_INC
-	global PAN_X_INC_MAG, PAN_X_MAX, PAN_X_MIN
+	global SPIN_THETA_MAX, SPIN_THETA_MIN
+	global MAX_X, MAX_Y, MIN_X, MIN_Y
+	global MIN_VEL, MAX_VEL
 
+	xDirec = 0
+	yDirec = 0
+
+	xVel = MAX_VEL
+	yVel = MAX_VEL
+
+	spin = SPIN_THETA_MAX
 	inc = True
-	panInc = True
 
-	xPan = 0
-	spin = 0
+	def percent(perc, _min, _max):
+		return _min + (_max - _min) * perc
 
 	while True:
+		if SQUARE.x > MAX_X:
+			x = random.uniform(0, 1)
+			spin = percent(x, SPIN_THETA_MIN, SPIN_THETA_MAX)
+			xVel = percent(x, MIN_VEL, MAX_VEL)
+			xVel *= -1
 
-		# RADIUS
+		elif SQUARE.x < MIN_X:
+			x = random.uniform(0, 1)
+			spin = percent(x, SPIN_THETA_MIN, SPIN_THETA_MAX)
+			xVel = percent(x, MIN_VEL, MAX_VEL)
+			spin *= -1
+
+		if SQUARE.y > MAX_Y:
+			x = random.uniform(0, 1)
+			spin = percent(x, SPIN_THETA_MIN, SPIN_THETA_MAX)
+			yVel = percent(x, MIN_VEL, MAX_VEL)
+			yVel *= -1
+		elif SQUARE.y < MIN_Y:
+			x = random.uniform(0, 1)
+			spin = percent(x, SPIN_THETA_MIN, SPIN_THETA_MAX)
+			yVel = percent(x, MIN_VEL, MAX_VEL)
+
+		SQUARE.theta += spin
+		SQUARE.x += xVel
+		SQUARE.y += yVel
+
+		# SIZE
 		r = SQUARE.radius
-		if r > SQUARE_RADIUS_MAX:
+		if r > SQUARE_SIZE_MAX:
 			inc = False
-		elif r < SQUARE_RADIUS_MIN:
+		elif r < SQUARE_SIZE_MIN:
 			inc = True
 
 		if inc:
-			r += SQUARE_RADIUS_INC
+			r += SQUARE_SIZE_INC
 		else:
-			r -= SQUARE_RADIUS_INC
+			r -= SQUARE_SIZE_INC
 
 		SQUARE.radius = r
 
-		# PAN
-		if xPan > PAN_X_MAX:
-			panInc = False
-		elif xPan < PAN_X_MIN:
-			panInc = True
-
-		if panInc:
-			xPan += PAN_X_INC_MAG
-			spin = -SPIN_THETA_INC
-		else:
-			xPan -= PAN_X_INC_MAG
-			spin = SPIN_THETA_INC
-
-		SQUARE.x = SQUARE_X + xPan
-		SQUARE.theta += spin
-
-		time.sleep(0.05)
+		time.sleep(0.020)
 
 #
 # Start Threads
@@ -244,7 +256,7 @@ SQUARE = Square()
 
 thread.start_new_thread(dac_thread, ())
 time.sleep(1.0)
-thread.start_new_thread(spin_thread, ())
+thread.start_new_thread(anim_thread, ())
 
 while True:
 	time.sleep(100000)
