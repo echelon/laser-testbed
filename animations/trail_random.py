@@ -99,8 +99,10 @@ def dac_thread():
 	ps = PointStream()
 	ps.objects.append(OBJ)
 
-	ps.showBlankingPath = True
-	ps.showTrackingPath = True
+	ps.showBlankingPath = False
+	ps.showTrackingPath = False
+	ps.blankingSamplePts = 10
+	ps.trackingSamplePts = 10
 
 	while True:
 		try:
