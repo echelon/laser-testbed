@@ -10,9 +10,9 @@ of the galvos. For all intents and purposes, there's nothing further to be done 
 
 Occasionally when I want to write something quickly, I'll come back to this code. But I expect future work to be done with **[Light Engine](https://github.com/echelon/light-engine)** once I've finished.
 
-[![](http://i.imgur.com/bQ7D08Gs.jpg)](http://imgur.com/bQ7D08G)
-[![](http://i.imgur.com/F0YGOs.jpg)](http://imgur.com/F0YGO)
-[![](http://i.imgur.com/xqqH0s.jpg)](http://imgur.com/xqqH0)
+[![](http://i.imgur.com/bQ7D08Gb.jpg)](http://imgur.com/bQ7D08G)
+[![](http://i.imgur.com/F0YGOb.jpg)](http://imgur.com/F0YGO)
+[![](http://i.imgur.com/xqqH0b.jpg)](http://imgur.com/xqqH0)
 
 Libraries, License, etc.
 ------------------------
