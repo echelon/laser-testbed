@@ -3,14 +3,12 @@ Laser Testbed
 [![](http://i.imgur.com/EVfFMyz.jpg)](#)
 *Above: Canny edge detector output via the laser projector.*
 
-Various experiments I run on the projector. If I like
-something, it'll be broken out into its own project and
-possibly ported to a compiled langauge. 
+This codebase contains various experiments that I have run on the laser projector. If I like something, it'll be broken out into its own project and possibly ported to a compiled langauge. 
 
 Early on, this code served as a tool for me to study the behavior
 of the galvos. For all intents and purposes, there's nothing further to be done here. This was all experimental and remains merely a self-learning tool that I utilized in the past. 
 
-Occasionally when I want to write something quickly, I'll come back to this code. But I expect future work to be done on/with [Light Engine](https://github.com/echelon/light-engine).
+Occasionally when I want to write something quickly, I'll come back to this code. But I expect future work to be done with **[Light Engine](https://github.com/echelon/light-engine)** once I've finished.
 
 Libraries, License, etc.
 ------------------------
