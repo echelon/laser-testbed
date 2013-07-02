@@ -26,14 +26,20 @@ class Play(object):
 		self.proc = subprocess.Popen(cmd, shell=False)
 	def close(self):
 		self.proc.terminate()
+		#self.proc.kill()
+		#print "process id", self.proc.pid
+		#os.kill(self.proc.pid, 9)
 
 scripts = [
-	Play('ball.py', 7),
-	Play('fireworks.py', 15),
-	Play('sine_wave.py', 10),
-	Play('spin_square.py', 6),
-	Play('flicker.py', 6),
-	Play('trail_random.py', 20),
+	#Play('../opencv/laser_edges.py', 7),
+	#Play('ball.py', 7),
+	#Play('fireworks.py', 10),
+	Play('random_lines.py', 15),
+	#Play('sine_wave.py', 10),
+	Play('spin_square.py', 10),
+	#Play('flicker.py', 6),
+	#Play('trail_random.py', 15),
+	Play('../../client/main.py', 20),
 	#Play('bouncing_shapes.py', 10),
 ]
 

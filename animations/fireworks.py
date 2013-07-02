@@ -18,6 +18,7 @@ from lib import dac
 from lib.common import *
 from lib.stream import PointStream
 from lib.shape import Shape
+from dimensions import *
 
 """
 CONFIGURATION
@@ -28,11 +29,6 @@ CONFIGURATION
 LASER_POWER_DENOM = 1.0
 
 NUM_FIREWORKS = 5
-
-X_MIN = -30000
-X_MAX = 30000
-Y_MIN = -30000
-Y_MAX = 30000
 
 VEL_MIN = 150
 VEL_MAX = 400
@@ -183,6 +179,11 @@ class Firework(object):
 					ember.r = CMAX
 					ember.g = CMAX
 					ember.b = CMAX
+
+			# XXX/TEMPORARY: ALL BLUE
+			ember.r = CMAX
+			ember.g = CMAX
+			ember.b = CMAX
 
 			self.embers.append(ember)
 

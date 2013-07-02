@@ -2,6 +2,7 @@
 
 from lib import dac
 from lib.common import *
+from dimensions import *
 
 import math
 import random
@@ -13,10 +14,10 @@ import time
 
 RADIUS = 5000
 
-MIN_X = -30000 + RADIUS
-MAX_X = 30000 - RADIUS
-MIN_Y = -30000 + RADIUS
-MAX_Y = 30000 - RADIUS
+MIN_X = X_MIN + RADIUS
+MAX_X = X_MAX - RADIUS
+MIN_Y = Y_MIN + RADIUS
+MAX_Y = Y_MAX - RADIUS
 
 MIN_VEL = 100
 MAX_VEL = 1000

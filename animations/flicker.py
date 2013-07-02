@@ -17,6 +17,7 @@ from lib import dac
 from lib.common import *
 from lib.stream import PointStream
 from lib.shape import Shape
+from dimensions import *
 
 """
 CONFIGURATION
@@ -25,11 +26,6 @@ CONFIGURATION
 LASER_POWER_DENOM = 1.0
 
 NUM_POINTS = 50
-
-X_MIN = -30000
-X_MAX = 30000
-Y_MIN = -30000
-Y_MAX = 30000
 
 POINT_NUM_SAMPLE_PTS = 500
 TRACKING_SAMPLE_PTS = 10

@@ -21,15 +21,16 @@ import itertools
 import sys
 import thread
 import time
+from dimensions import *
 
 # Hardware params
 LASER_POWER_DENOM = 1.0 # How much to divide power by
 MAXPT = 32330 # Canvas boundaries 
 
-MAX_X = 5000 #32330
-MIN_X = -32330
-MAX_Y = 10000 #32330
-MIN_Y = 1000 #-32330
+MAX_X = X_MAX
+MIN_X = X_MIN
+MAX_Y = Y_MAX
+MIN_Y = Y_MIN
 RUN_COLOR_THREAD = False
 
 # Demo params
@@ -39,7 +40,7 @@ SHOW_TRAVEL_PATH = True # Show blanking trace
 
 # Change the sampling rate?
 CHANGE_SAMPLING = True # Change the sample speeds
-CHANGE_SAMPLING_SEC = 10
+CHANGE_SAMPLING_SEC = 1
 CHANGE_TRAVEL_DENOM = 2
 CHANGE_PAUSE_DENOM = 1.5
 CHANGE_WAIT_DENOM = 2 # Alter the wait time

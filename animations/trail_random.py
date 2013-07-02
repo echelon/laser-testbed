@@ -11,13 +11,14 @@ from lib.shape import Shape
 from lib.stream import PointStream
 from lib.system import *
 import datetime
+from dimensions import *
 
 BLINK = True # Blinking effect.
 
-MAX_X = 32000
-MAX_Y = 32000
-MIN_X = -MAX_X
-MIN_Y = -MAX_Y
+MAX_X = X_MAX
+MAX_Y = Y_MAX
+MIN_X = X_MIN
+MIN_Y = Y_MIN
 
 DX_MAG = 250
 DY_MAG = 250

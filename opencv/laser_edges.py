@@ -110,8 +110,8 @@ def opencv_thread():
 	global camera
 	global queue
 
-	width = 300 # 400
-	height = 300 # 400
+	width = 250 # 400
+	height = 250 # 400
 	x1 = 150
 	y1 = 70
 	x2 = x1 + width
