@@ -22,9 +22,6 @@ from dimensions import *
 CONFIGURATION
 """
 
-SQUARE_X = 0
-SQUARE_Y = 0
-
 SQUARE_R = CMAX
 SQUARE_G = CMAX
 SQUARE_B = CMAX
@@ -32,9 +29,10 @@ SQUARE_B = CMAX
 SQUARE_EDGE_SAMPLE_PTS = 50
 SQUARE_VERTEX_SAMPLE_PTS = 10
 
-SQUARE_SIZE_MIN = 2000
-SQUARE_SIZE_MAX = 3200
-SQUARE_SIZE_INC = 50
+SQUARE_SIZE_MIN = 100
+SQUARE_SIZE_MAX = 400
+SQUARE_SIZE_INC = 10
+
 PAN_X_INC_MAG = 1500
 
 MIN_X = X_MIN + SQUARE_SIZE_MAX
@@ -46,7 +44,7 @@ SPIN_THETA_MAX = math.pi / 10
 SPIN_THETA_MIN = math.pi / 30
 
 MIN_VEL = 100
-MAX_VEL = 1000
+MAX_VEL = 200
 
 LASER_POWER_DENOM = 1.0
 
@@ -65,6 +63,9 @@ class Square(Shape):
 		self.drawn = False
 		self.pauseFirst = True
 		self.pauseLast = True
+
+		self.x = (MIN_X + MAX_X) / 2
+		self.y = (MIN_Y + MAX_Y) / 2
 
 		self.theta = 0
 		self.thetaRate = 0
@@ -165,9 +166,6 @@ def dac_thread():
 
 	SQUARE = Square(0, 0, SQUARE_R, SQUARE_G, SQUARE_B,
 			radius = SQUARE_SIZE_MIN)
-
-	SQUARE.x = SQUARE_X
-	SQUARE.y = SQUARE_Y
 
 	ps.objects.append(SQUARE)
 
