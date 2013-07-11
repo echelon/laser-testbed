@@ -33,13 +33,13 @@ class Play(object):
 scripts = [
 	#Play('../opencv/laser_edges.py', 7),
 	#Play('ball.py', 7),
-	#Play('fireworks.py', 10),
-	Play('random_lines.py', 15),
-	#Play('sine_wave.py', 10),
 	Play('spin_square.py', 10),
+	Play('trail_random.py', 15),
+	#Play('fireworks.py', 10),
+	#Play('random_lines.py', 15),
+	#Play('sine_wave.py', 10),
 	#Play('flicker.py', 6),
-	#Play('trail_random.py', 15),
-	Play('../../client/main.py', 20),
+	#Play('../../client/main.py', 20),
 	#Play('bouncing_shapes.py', 10),
 ]
 

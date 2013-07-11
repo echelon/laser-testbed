@@ -20,6 +20,13 @@ from lib.stream import PointStream
 from lib.shape import Shape
 from dimensions import *
 
+"""# XXX OVERRIDE
+X_MAX = 30000
+X_MIN = -30000
+Y_MAX = 30000
+Y_MIN = -30000
+"""
+
 """
 CONFIGURATION
 """
@@ -46,6 +53,9 @@ GLOBALS
 """
 
 PS = PointStream()
+PS.scale = 0.12
+PS.translateX = 0
+PS.translateY = -10000
 PS.trackingSamplePts = TRACKING_SAMPLE_PTS
 PS.blankingSamplePts = BLANKING_SAMPLE_PTS
 
@@ -181,9 +191,9 @@ class Firework(object):
 					ember.b = CMAX
 
 			# XXX/TEMPORARY: ALL BLUE
-			ember.r = CMAX
-			ember.g = CMAX
-			ember.b = CMAX
+			#ember.r = CMAX
+			#ember.g = CMAX
+			#ember.b = CMAX
 
 			self.embers.append(ember)
 

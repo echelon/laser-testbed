@@ -13,7 +13,7 @@ from lib.system import *
 import datetime
 from dimensions import *
 
-BLINK = True # Blinking effect.
+BLINK = False # Blinking effect.
 
 MAX_X = X_MAX
 MAX_Y = Y_MAX
@@ -23,7 +23,7 @@ MIN_Y = Y_MIN
 DX_MAG = 250
 DY_MAG = 250
 
-MAX_LENGTH = 450
+MAX_LENGTH = 45 # Typically 450, better small for distance
 
 # TODO: Shape needs to be standardized to support
 # scaling, rotation, etc. out of the box in the same

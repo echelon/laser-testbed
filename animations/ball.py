@@ -12,15 +12,15 @@ import sys
 import thread
 import time
 
-RADIUS = 5000
+RADIUS = 200
 
 MIN_X = X_MIN + RADIUS
 MAX_X = X_MAX - RADIUS
 MIN_Y = Y_MIN + RADIUS
 MAX_Y = Y_MAX - RADIUS
 
-MIN_VEL = 100
-MAX_VEL = 1000
+MIN_VEL = 200
+MAX_VEL = 300
 
 COLOR_DENOM = 1.0
 
@@ -51,7 +51,7 @@ class Ball(PointStream):
 				i = float(i) / 40 * 2 * math.pi
 				x = int(math.cos(i) * self.radius) + self.x
 				y = int(math.sin(i) * self.radius) + self.y
-				yield (x, y, 0, 0, int(CMAX/COLOR_DENOM))
+				yield (x, y, CMAX, CMAX, int(CMAX/COLOR_DENOM))
 
 			# This, by itself, works
 			#self.x = (self.x + 10) % 10000
