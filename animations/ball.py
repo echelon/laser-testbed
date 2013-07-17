@@ -12,15 +12,15 @@ import sys
 import thread
 import time
 
-RADIUS = 200
+RADIUS = XY_AREA / 100000
+
+MIN_VEL = RADIUS / 4
+MAX_VEL = RADIUS
 
 MIN_X = X_MIN + RADIUS
 MAX_X = X_MAX - RADIUS
 MIN_Y = Y_MIN + RADIUS
 MAX_Y = Y_MAX - RADIUS
-
-MIN_VEL = 200
-MAX_VEL = 300
 
 COLOR_DENOM = 1.0
 
