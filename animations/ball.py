@@ -12,10 +12,10 @@ import sys
 import thread
 import time
 
-RADIUS = XY_AREA / 100000
+RADIUS = math.sqrt(XY_AREA) / 10
 
-MIN_VEL = RADIUS / 4
-MAX_VEL = RADIUS
+MIN_VEL = int(RADIUS / 8)
+MAX_VEL = int(RADIUS / 4)
 
 MIN_X = X_MIN + RADIUS
 MAX_X = X_MAX - RADIUS
