@@ -16,15 +16,14 @@ from dimensions import *
 
 BLINK = True # XXX: Cool! Blinking effect.
 
-SIMPLE_TRANSLATION_SPD = 1000 # 1000
+SIMPLE_TRANSLATION_SPD = 2000
 
+MAX_LENGTH = 500
 
 MAX_X = X_MAX
 MAX_Y = Y_MAX
 MIN_X = X_MIN
 MIN_Y = Y_MIN
-
-MAX_LENGTH = 450
 
 # TODO: Shape needs to be standardized to support
 # scaling, rotation, etc. out of the box in the same
@@ -46,10 +45,14 @@ class Tracer(Shape):
 		self.thetaRate = 0
 		self.direc = True
 
+		self.x = 0
+		self.y = 0
 		self.path = [{'x': 0, 'y': 0}]
 		self.blink = False
 
 	def addPoint(self, x, y):
+		self.x = x
+		self.y = y
 		pt = {'x': x, 'y': y}
 		while len(self.path) > MAX_LENGTH:
 			self.path.pop(0)
@@ -60,20 +63,10 @@ class Tracer(Shape):
 		return self.path[-1]
 
 	def produce(self):
-		if not self.blink:
-			for pt in self.path:
-				yield(pt['x'], pt['y'], self.r, self.g, self.b)
-		else:
-			i = 0
-			for pt in self.path:
-				i += 1
-				j = i % 3
-				if j == 0:
-					yield(pt['x'], pt['y'], 0,0,0)
-				elif j == 1:
-					yield(pt['x'], pt['y'], self.r, self.g, self.b)
-				else:
-					yield(pt['x'], pt['y'], self.r, self.g, 0)
+		x = self.x
+		y = self.y
+		for i in range(100):
+			yield (x, y, CMAX, CMAX, CMAX)
 
 		self.drawn = True
 
@@ -133,13 +126,13 @@ def controller_thread():
 
 		if abs(rVert) > 0.2:
 			y = lastPt['y']
-			y += -1 * int(rVert * SIMPLE_TRANSLATION_SPD)
+			y += -1 * int(rVert*abs(rVert) * SIMPLE_TRANSLATION_SPD)
 			if MIN_Y < y < MAX_Y:
 				newY = y
 
 		if abs(rHori) > 0.2:
 			x = lastPt['x']
-			x += -1 * int(rHori * SIMPLE_TRANSLATION_SPD)
+			x += -1 * int(rHori*abs(rHori) * SIMPLE_TRANSLATION_SPD)
 			if MIN_X < x < MAX_X:
 				newX = x
 

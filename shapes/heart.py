@@ -9,7 +9,9 @@ import sys
 
 LASER_POWER_DENOM = 1.0
 SAMPLE_PTS = 100 # 30 and below very damaging to galvos
-SIZE = 400
+SIZE = 15
+
+YOFF = -10000
 
 class HeartPointStream(object):
 
@@ -22,7 +24,7 @@ class HeartPointStream(object):
 				y = int(13*math.cos(i) - 5*math.cos(2*i) - \
 						2*math.cos(3*i) - math.cos(4*i))*SIZE
 				#pt = (x, y, CMAX, 0, CMAX/3) # Original color before red died.
-				pt = (x, y, CMAX, CMAX, CMAX)
+				pt = (x, y + YOFF, CMAX, CMAX, CMAX)
 				yield pt
 
 	def __init__(self):

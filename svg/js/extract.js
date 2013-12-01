@@ -31,17 +31,15 @@ var extract = function()
 		return pts;
 	}
 
-	var pts = null; 
+	var pts = null,
+		i = 0;
 
 
-	/*for(var i = 0; i < paths.length; i++) {
+	for(i = 0; i < paths.length; i++) {
 		//if(i in skip) {
 		//	continue;
 		//}
 		
-		if( i > paths.length / 2 - 1) {
-			break;
-		}
 		//switch(i) {
 		//	case 0:
 		//		SAMPLE = 100;
@@ -52,15 +50,16 @@ var extract = function()
 
 		pts = getPathPoints(paths[i], 500);
 		objects.push(pts);
-	}*/
+	}
 
+	/*
 	var i = 0;
 
 	objects.push(getPathPoints(paths[0], 300));  // outline
 	objects.push(getPathPoints(paths[1], 100)); //face
 	objects.push(getPathPoints(paths[2], 200)); // eyes
 	objects.push(getPathPoints(paths[3], 100));
-	objects.push(getPathPoints(paths[4], 50)); // mouth
+	objects.push(getPathPoints(paths[4], 50)); // mouth*/
 
 
 	/*pts = getPathPoints(paths[0], 4000);

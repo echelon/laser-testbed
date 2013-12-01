@@ -25,7 +25,6 @@ from dimensions import *
 
 # Hardware params
 LASER_POWER_DENOM = 1.0 # How much to divide power by
-MAXPT = 32330 # Canvas boundaries 
 
 MAX_X = X_MAX
 MIN_X = X_MIN
@@ -80,11 +79,10 @@ Now with "blanking"...
 class BlinkPointStreamWithBlanking(BlinkPointStream):
 
 	def produce(self):
+		global R, G, B
 		lastX = 0
 		lastY = 0
 		while True: 
-			#x = random.randint(-MAXPT, MAXPT)
-			#y = random.randint(-MAXPT, MAXPT)
 			x = random.randint(MIN_X, MAX_X)
 			y = random.randint(MIN_Y, MAX_Y)
 			
@@ -106,10 +104,7 @@ class BlinkPointStreamWithBlanking(BlinkPointStream):
 
 			# Show the random point
 			for i in xrange(0, PAUSE_SAMPLE_PTS):
-				yield (x, y,  
-						 R/LASER_POWER_DENOM,
-						 G/LASER_POWER_DENOM,
-						 B/LASER_POWER_DENOM)
+				yield (x, y, R, G, B)
 
 			lastX = x
 			lastY = y
@@ -234,31 +229,37 @@ def color_thread():
 
 	rn = 0
 	while True:
-		rn = (rn + 1) % 5
+		rn = (rn + 1) % 6
+		rn = random.randint(0, 5)
 
 		if rn == 0:
 			r = CMAX
-			g = CMAX
-			b = CMAX
+			g = 0
+			b = 0
 
 		elif rn == 1:
 			r = CMAX
 			g = CMAX
-			b = CMAX/2
+			b = 0
 
 		elif rn == 2:
 			r = CMAX
-			g = CMAX
-			b = CMAX/3
+			g = 0
+			b = CMAX
 
 		elif rn == 3:
 			r = CMAX
 			g = CMAX
-			b = 0
+			b = CMAX
 
 		elif rn == 4:
-			r = CMAX
-			g = 0
+			r = 0
+			g = CMAX
+			b = 0
+
+		elif rn == 5:
+			r = 0
+			g = CMAX
 			b = CMAX
 
 
@@ -266,12 +267,11 @@ def color_thread():
 		G = g
 		B = b
 
-		time.sleep(0.5)
+		time.sleep(0.05)
 
 thread.start_new_thread(dac_thread, ())
 thread.start_new_thread(speed_thread, ())
-if RUN_COLOR_THREAD:
-	thread.start_new_thread(color_thread, ())
+thread.start_new_thread(color_thread, ())
 
 while True:
 	time.sleep(200)

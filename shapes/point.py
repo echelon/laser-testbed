@@ -7,7 +7,7 @@ import math
 import itertools
 import sys
 
-LASER_POWER_DENOM = 1.0
+LASER_POWER_DENOM = 2.5
 SAMPLE_PTS = 100 # 30 and below very damaging to galvos
 X = 0
 Y = -9000

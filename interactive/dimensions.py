@@ -1,11 +1,7 @@
+"""
+No documentation, whee!
+"""
 
-"""
-WORKS FOR
-	* fireworks
-	* spin_square
-	* flicker
-	* ball
-"""
 
 dmax = 30000
 x_offset = 0

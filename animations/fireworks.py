@@ -35,11 +35,11 @@ CONFIGURATION
 
 LASER_POWER_DENOM = 1.0
 
-NUM_FIREWORKS = 5
+NUM_FIREWORKS = 5 # Typically 5
 
-VEL_MIN = 150
-VEL_MAX = 400
-ACCEL = 0.15
+VEL_MIN = 150 # Typically 150
+VEL_MAX = 400 # Typically 400
+ACCEL = 0.15 # Typically 0.15
 
 EMBER_NUM_SAMPLE_PTS = 15
 TRACKING_SAMPLE_PTS = 10
@@ -53,9 +53,9 @@ GLOBALS
 """
 
 PS = PointStream()
-PS.scale = 0.12
+#PS.scale = 0.12
 PS.translateX = 0
-PS.translateY = -10000
+PS.translateY = 0
 PS.trackingSamplePts = TRACKING_SAMPLE_PTS
 PS.blankingSamplePts = BLANKING_SAMPLE_PTS
 
@@ -276,8 +276,8 @@ def shoot_thread():
 		#now = datetime.datetime.now()
 
 		while len(fireworks) < NUM_FIREWORKS:
-			x = random.randint(X_MIN, X_MAX)
-			y = random.randint(Y_MIN, Y_MAX)
+			x = random.randint(int(X_MIN), int(X_MAX))
+			y = random.randint(int(Y_MIN), int(Y_MAX))
 
 			# TODO: Random color
 			r = random.randint(0, 2)

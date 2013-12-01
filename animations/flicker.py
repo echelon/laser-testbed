@@ -25,7 +25,7 @@ CONFIGURATION
 
 LASER_POWER_DENOM = 1.0
 
-NUM_POINTS = 50
+NUM_POINTS = 5
 
 POINT_NUM_SAMPLE_PTS = 500
 TRACKING_SAMPLE_PTS = 10
@@ -90,8 +90,8 @@ def anim_thread():
 		now = datetime.datetime.now()
 
 		while len(PS.objects) < NUM_POINTS:
-			x = random.randint(X_MIN, X_MAX)
-			y = random.randint(Y_MIN, Y_MAX)
+			x = random.randint(int(X_MIN), int(X_MAX))
+			y = random.randint(int(Y_MIN), int(Y_MAX))
 
 			"""
 			r, g, b = (CMAX, 0, 0)

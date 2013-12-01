@@ -6,6 +6,7 @@ from lib.common import *
 import math
 import itertools
 import sys
+import time
 
 LASER_POWER_DENOM = 1.0
 MAXRAD = 10260
@@ -38,6 +39,13 @@ class CirclePointStream(object):
 
 while True:
 	try:
+		"""
+		while 1:
+			d = dac.find_first_dac()
+			print d
+			print ''
+			time.sleep(2)
+		"""
 		d = dac.DAC(dac.find_first_dac())
 		ps = CirclePointStream()
 		d.play_stream(ps)

@@ -23,14 +23,16 @@ import sys
 import thread
 import time
 
+from dimensions import *
+
 # Hardware params
 LASER_POWER_DENOM = 1.0 # How much to divide power by
 MAXPT = 32330 # Canvas boundaries 
 
-MAX_X = 32330
-MIN_X = -32330
-MAX_Y = 32330
-MIN_Y = -32330
+MAX_X = X_MAX
+MIN_X = X_MIN
+MAX_Y = Y_MAX
+MIN_Y = Y_MIN
 RUN_COLOR_THREAD = False
 
 # Demo params

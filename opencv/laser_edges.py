@@ -34,7 +34,8 @@ CONFIGURATION
 LASER_POWER_DENOM = 1.0
 
 # Contour scaling
-SCALE = -100
+SCALE = -1000
+DENOM = 80
 X_OFF = 0
 Y_OFF = 0
 
@@ -194,8 +195,8 @@ def copy_struct_thread():
 				i += 1
 				if i % 2:
 					continue
-				x = pt[0] * SCALE + X_OFF
-				y = pt[1] * SCALE + Y_OFF
+				x = (pt[0] * SCALE) / DENOM + X_OFF
+				y = (pt[1] * SCALE) / DENOM + Y_OFF
 				points.append({'x': x, 'y': y})
 
 			obj = Contour(ctour=points)

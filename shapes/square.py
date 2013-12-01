@@ -12,9 +12,9 @@ COLOR_R = CMAX
 COLOR_G = CMAX
 COLOR_B = CMAX
 
-SIZE = 150
+SIZE = 9000
 XOFF = 0
-YOFF = -10000
+YOFF = 0
 
 def line_generator(pt1, pt2, backward=False, steps = 100):
 	xdiff = pt1.x - pt2.x

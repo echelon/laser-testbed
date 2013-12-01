@@ -23,7 +23,9 @@ MIN_Y = Y_MIN
 DX_MAG = 250
 DY_MAG = 250
 
-MAX_LENGTH = 45 # Typically 450, better small for distance
+# Typically 450 for large, 45 for small surfaces
+MAX_LENGTH = 45
+ADD_PER_TICK = 1
 
 # TODO: Shape needs to be standardized to support
 # scaling, rotation, etc. out of the box in the same
@@ -90,6 +92,9 @@ class Tracer(Shape):
 OBJ = Tracer()
 OBJ.clearPoints()
 OBJ.addPoint((MAX_X + MIN_X)/2, (MAX_Y + MIN_Y)/2)
+OBJ.r = CMAX
+OBJ.g = CMAX
+OBJ.b = CMAX
 
 if BLINK:
 	OBJ.blink = True
@@ -126,42 +131,43 @@ def move_thread():
 	global MIN_X, MIN_Y, MAX_X, MAX_Y, DX_MAG, DY_MAG
 
 	while True:
-		lastPt = OBJ.lastPoint()
-		newX = lastPt['x']
-		newY = lastPt['y']
+		for i in range(ADD_PER_TICK):
+			lastPt = OBJ.lastPoint()
+			newX = lastPt['x']
+			newY = lastPt['y']
 
-		now = datetime.datetime.now()
-		xElap = now - OBJ.dtChangedX
-		yElap = now - OBJ.dtChangedY
+			now = datetime.datetime.now()
+			xElap = now - OBJ.dtChangedX
+			yElap = now - OBJ.dtChangedY
 
-		if xElap > datetime.timedelta(seconds=OBJ.secWaitX):
-			OBJ.dtChangedX = now
-			OBJ.velX = random.randint(-DX_MAG, DX_MAG)
-			OBJ.secWaitX = random.randint(3, 15)/10
+			if xElap > datetime.timedelta(seconds=OBJ.secWaitX):
+				OBJ.dtChangedX = now
+				OBJ.velX = random.randint(-DX_MAG, DX_MAG)
+				OBJ.secWaitX = random.randint(3, 15)/10
 
-		if yElap > datetime.timedelta(seconds=OBJ.secWaitY):
-			OBJ.dtChangedY = now
-			OBJ.velY = random.randint(-DY_MAG, DY_MAG)
-			OBJ.secWaitY = random.randint(3, 15)/10
+			if yElap > datetime.timedelta(seconds=OBJ.secWaitY):
+				OBJ.dtChangedY = now
+				OBJ.velY = random.randint(-DY_MAG, DY_MAG)
+				OBJ.secWaitY = random.randint(3, 15)/10
 
-		newX = lastPt['x'] + OBJ.velX
-		newY = lastPt['y'] + OBJ.velY
+			newX = lastPt['x'] + OBJ.velX
+			newY = lastPt['y'] + OBJ.velY
 
-		if newX < MIN_X:
-			newX = MIN_X
-			OBJ.velX = DX_MAG
-		elif newX > MAX_X:
-			newX = MAX_X
-			OBJ.velX = -DX_MAG
+			if newX < MIN_X:
+				newX = MIN_X
+				OBJ.velX = DX_MAG
+			elif newX > MAX_X:
+				newX = MAX_X
+				OBJ.velX = -DX_MAG
 
-		if newY < MIN_Y:
-			newY = MIN_Y
-			OBJ.velY = DY_MAG
-		elif newY > MAX_Y:
-			newY = MAX_Y
-			OBJ.velY = -DY_MAG
+			if newY < MIN_Y:
+				newY = MIN_Y
+				OBJ.velY = DY_MAG
+			elif newY > MAX_Y:
+				newY = MAX_Y
+				OBJ.velY = -DY_MAG
 
-		OBJ.addPoint(newX, newY)
+			OBJ.addPoint(newX, newY)
 
 		# Keep this thread from hogging CPU
 		time.sleep(0.005)

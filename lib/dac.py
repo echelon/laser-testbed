@@ -22,10 +22,10 @@ def pack_point(x, y, r, g, b, i = -1, u1 = 0, u2 = 0, flags = 0):
 	"""Pack some color values into a struct dac_point.
 
 	Values must be specified for x, y, r, g, and b. If a value is not
-	passed in for the other fields, i will default to max(r, g, b); the 
+	passed in for the other fields, i will default to max(r, g, b); the
 	rest default to zero.
 	"""
-	
+
 	if i < 0:
 		i = max(r, g, b)
 
@@ -74,6 +74,7 @@ class BroadcastPacket(object):
 		self.mac = st[:6]
 		self.hw_rev, self.sw_rev, self.buffer_capacity, \
 		self.max_point_rate = struct.unpack("<HHHI", st[6:16])
+		#print int(st[6:16], 16)
 		self.status = Status(st[16:36])
 
 	def dump(self, prefix = " - "):
@@ -97,7 +98,11 @@ class DAC(object):
 	def read(self, l):
 		"""Read exactly length bytes from the connection."""
 		while l > len(self.buf):
-			self.buf += self.conn.recv(4096)
+			data = self.conn.recv(4096)
+			if len(data) == 0:
+				raise Exception, 'Zero length recv.'
+
+			self.buf += data
 
 		obuf = self.buf
 		self.buf = obuf[l:]
@@ -110,6 +115,9 @@ class DAC(object):
 		cmdR = data[1]
 		status = Status(data[2:])
 
+		#print "1) Data[0:2]: " + data[0:2]
+		#print "2) Read Response (%s), got `%s`; Status %s" % \
+				#(cmd, cmdR, response)
 #		status.dump()
 
 		if cmdR != cmd:
@@ -131,10 +139,12 @@ class DAC(object):
 		self.buf = ""
 
 		# Read the "hello" message
+		print 'Read Hello...'
 		first_status = self.readresp("?")
 		first_status.dump()
 
 	def begin(self, lwm, rate):
+		print 'Begin...'
 		cmd = struct.pack("<cHI", "b", lwm, rate)
 		self.conn.sendall(cmd)
 		return self.readresp("b")
@@ -155,10 +165,14 @@ class DAC(object):
 	def write(self, points):
 		epoints = map(self.encode_point, points)
 		cmd = struct.pack("<cH", "d", len(epoints))
-		self.conn.sendall(cmd + "".join(epoints))
-		return self.readresp("d")
+		payload = cmd + "".join(epoints)
+		#print "Sending payload len: %d" % len(payload)
+		self.conn.sendall(payload)
+		r = self.readresp("d")
+		return r
 
 	def prepare(self):
+		print 'Sending prepare (p)'
 		self.conn.sendall("p")
 		return self.readresp("p")
 
@@ -180,6 +194,7 @@ class DAC(object):
 
 	def play_stream(self, stream):
 		# First, prepare the stream
+		print "PLAY STREAM!"
 		if self.last_status.playback_state == 2:
 			raise Exception("already playing?!")
 		elif self.last_status.playback_state == 0:
@@ -191,15 +206,18 @@ class DAC(object):
 			# How much room?
 			cap = 1799 - self.last_status.fullness
 			points = stream.read(cap)
+			print 'send %d points' % len(points)
 
 			if cap < 100:
 				time.sleep(0.005)
 				cap += 150
 
+
 #			print "Writing %d points" % (cap, )
-			t0 = time.time()
+			#t0 = time.time()
 			self.write(points)
-			t1 = time.time()
+			#t1 = time.time()
+			#print 'sent %d points' % len(points)
 #			print "Took %f" % (t1 - t0, )
 
 			if not started:
@@ -216,7 +234,7 @@ def find_dac():
 	while True:
 		data, addr = s.recvfrom(1024)
 		bp = BroadcastPacket(data)
-		
+
 		print "Packet from %s: " % (addr, )
 		bp.dump()
 
@@ -225,5 +243,6 @@ def find_first_dac():
 	s.bind(("0.0.0.0", 7654))
 	data, addr = s.recvfrom(1024)
 	bp = BroadcastPacket(data)
+	bp.dump()
 	print "Packet from %s: " % (addr, )
 	return addr[0]
